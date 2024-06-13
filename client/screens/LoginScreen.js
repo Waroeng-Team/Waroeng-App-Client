@@ -7,7 +7,7 @@ import {
   Button,
 } from "react-native";
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
@@ -29,6 +29,7 @@ export default function LoginScreen() {
         <Button
           title="Login"
           onPress={() => {
+            navigation.navigate("DrawerNavigator");
             /* Handle login */
           }}
         />
