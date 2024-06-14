@@ -12,7 +12,7 @@ import Ionicons from "@expo/vector-icons/Ionicons"; // Import Ionicons
 
 const Stack = createNativeStackNavigator();
 
-export default function App({}) {
+export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -26,10 +26,11 @@ export default function App({}) {
           component={Dashboard}
           options={({ navigation }) => ({
             headerLeft: () => (
-              <TouchableOpacity onPress={() => alert("hamburger menu")}>
-                <Ionicons name="menu" size={25} color="#000" style={{ marginLeft: 8 }} />
+              <TouchableOpacity onPress={() => alert("Menu button pressed")}>
+                <Ionicons name="menu" size={25} color="#000" style={{ marginLeft: 15 }} />
               </TouchableOpacity>
             ),
+            headerTitleAlign: "center", // Align the title in the center
           })}
         />
       </Stack.Navigator>

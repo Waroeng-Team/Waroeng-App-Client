@@ -1,31 +1,12 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  Button,
-} from "react-native";
+import { SafeAreaView, StyleSheet, Text, TextInput, View, Button } from "react-native";
 
 export default function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
         <Text style={styles.title}>WarungKu</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
+        <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+        <TextInput style={styles.input} placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} />
         <Button
           title="Login"
           onPress={() => {

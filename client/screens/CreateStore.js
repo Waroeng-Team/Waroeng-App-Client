@@ -1,12 +1,4 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  Button,
-  TouchableOpacity,
-} from "react-native";
+import { SafeAreaView, StyleSheet, Text, TextInput, View, Button, TouchableOpacity } from "react-native";
 
 export default function CreateStoreScreen() {
   return (
@@ -16,28 +8,16 @@ export default function CreateStoreScreen() {
         <TextInput style={styles.input} placeholder="Tulis nama warung" />
 
         <Text style={styles.label}>Alamat Warung</Text>
-        <TextInput
-          style={[styles.input, { height: 100 }]}
-          placeholder="Tulis alamat warung mu"
-          multiline={true}
-        />
+        <TextInput style={[styles.input, { height: 100 }]} placeholder="Tulis alamat warung mu" multiline={true} />
 
         <Text style={styles.label}>Nomor Telepon</Text>
         <View style={styles.phoneInputContainer}>
           <Text style={styles.phonePrefix}>+62</Text>
-          <TextInput
-            style={styles.phoneInput}
-            placeholder="Masukkan nomor telepon"
-            keyboardType="phone-pad"
-          />
+          <TextInput style={styles.phoneInput} placeholder="Masukkan nomor telepon" keyboardType="phone-pad" />
         </View>
 
         <Text style={styles.label}>Deskripsi Warung</Text>
-        <TextInput
-          style={[styles.input, { height: 100 }]}
-          placeholder="Tulis deskripsi warung kamu"
-          multiline={true}
-        />
+        <TextInput style={[styles.input, { height: 100 }]} placeholder="Tulis deskripsi warung kamu" multiline={true} />
 
         <TouchableOpacity
           style={styles.button}

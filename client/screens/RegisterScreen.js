@@ -1,11 +1,4 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  Button,
-} from "react-native";
+import { SafeAreaView, StyleSheet, Text, TextInput, View, Button } from "react-native";
 
 export default function RegisterScreen() {
   return (
@@ -13,26 +6,9 @@ export default function RegisterScreen() {
       <View style={styles.innerContainer}>
         <Text style={styles.title}>WarungKu</Text>
         <Text style={styles.subtitle}>Enter your email and password</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
+        <TextInput style={styles.input} placeholder="Username" autoCapitalize="none" autoCorrect={false} />
+        <TextInput style={styles.input} placeholder="Email" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+        <TextInput style={styles.input} placeholder="Password" secureTextEntry autoCapitalize="none" autoCorrect={false} />
         <Button
           title="Sign Up"
           onPress={() => {

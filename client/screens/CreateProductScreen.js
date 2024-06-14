@@ -1,12 +1,4 @@
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { SafeAreaView, StyleSheet, Text, TextInput, View, TouchableOpacity, Image } from "react-native";
 
 export default function CreateProductScreen() {
   return (
@@ -17,33 +9,18 @@ export default function CreateProductScreen() {
 
         <Text style={styles.label}>Harga Beli</Text>
         <View style={styles.priceInputContainer}>
-          <TextInput
-            style={styles.inputHalf}
-            placeholder="Rp0"
-            keyboardType="numeric"
-          />
-          <TextInput
-            style={styles.inputHalf}
-            placeholder="Rp0"
-            keyboardType="numeric"
-          />
+          <TextInput style={styles.inputHalf} placeholder="Rp0" keyboardType="numeric" />
+          <TextInput style={styles.inputHalf} placeholder="Rp0" keyboardType="numeric" />
         </View>
 
         <Text style={styles.label}>Deskripsi Produk</Text>
-        <TextInput
-          style={[styles.input, { height: 100 }]}
-          placeholder="Deskripsikan produk kamu"
-          multiline={true}
-        />
+        <TextInput style={[styles.input, { height: 100 }]} placeholder="Deskripsikan produk kamu" multiline={true} />
 
         <Text style={styles.label}>Kategori</Text>
         <TextInput style={styles.input} placeholder="Nama kategori" />
 
         <View style={styles.imageUploadContainer}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/150" }}
-            style={styles.imagePlaceholder}
-          />
+          <Image source={{ uri: "https://via.placeholder.com/150" }} style={styles.imagePlaceholder} />
         </View>
 
         <View style={styles.buttonRow}>
