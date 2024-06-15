@@ -35,7 +35,10 @@ export default function LoginScreen({ navigation }) {
       const result = await handleLogin({ variables: { email, password } });
       console.log(result);
       //save token in SecureStore
-      await SecureStore.setItem("access_token", result.data.login.access_token);
+      await SecureStore.setItemAsync(
+        "access_token",
+        result.data.login.access_token
+      );
       setIsSignedIn(true);
     } catch (error) {
       console.log(error);
