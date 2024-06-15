@@ -3,13 +3,13 @@ import * as SecureStore from "expo-secure-store";
 import { setContext } from "@apollo/client/link/context";
 
 const httpLink = createHttpLink({
-  uri: "https://80be-104-28-217-187.ngrok-free.app",
+  uri: "https://c0b4-110-137-100-198.ngrok-free.app",
 });
 
 const authLink = setContext(async (_, { headers }) => {
   try {
     // get the authentication token from local storage if it exists
-    const token = SecureStore.getItemAsync("access_token");
+    const token = await SecureStore.getItemAsync("access_token");
     // return the headers to the context so httpLink can read them
     return {
       headers: {

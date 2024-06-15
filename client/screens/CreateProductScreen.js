@@ -1,3 +1,5 @@
+'use client'
+
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,6 +11,8 @@ import {
 } from "react-native";
 
 export default function CreateProductScreen() {
+  // const []
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
