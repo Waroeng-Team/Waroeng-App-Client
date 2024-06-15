@@ -5,26 +5,41 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import CreateStoreScreen from "./screens/CreateStore";
 import CreateProductScreen from "./screens/CreateProductScreen";
 import DrawerNavigator from "./navigators/DrawerNavigator";
-import { ApolloProvider } from "@apollo/client";
+import { ApolloProvider, gql } from "@apollo/client";
 import client from "./config/apollo";
 import { useEffect, useState } from "react";
 import { AuthContext } from "./contexts/AuthContext";
 import * as SecureStore from "expo-secure-store";
+import { jwtDecode } from "jwt-decode";
 
 const Stack = createNativeStackNavigator();
+
+const GET_USER_BY_ID = gql`
+  query GetUserById($id: ID) {
+    getUserById(_id: $id) {
+      _id
+      email
+      isNewAccount
+      name
+    }
+  }
+`;
 
 export default function App() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // console.log(isSignedIn);
+  const [isNewAccount, setIsNewAccount] = useState(false);
 
   useEffect(() => {
     async function getToken() {
       try {
         const token = await SecureStore.getItem("access_token");
         if (token) {
+          const decoded = jwtDecode(token);
+          if (decoded.isNewAccount) {
+            setIsNewAccount(true);
+          }
           setIsSignedIn(true);
-          console.log(token, "<<<");
         }
         if (!token) {
           setIsSignedIn(false);
@@ -41,22 +56,23 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator>
             {isSignedIn ? (
-              <>
-                {/* <Stack.Screen
-                  name="CreateStoreScreen"
-                  component={CreateStoreScreen}
-                />
-                <Stack.Screen
-                  name="CreateProductScreen"
-                  options={{ title: "Create Product" }}
-                  component={CreateProductScreen}
-                /> */}
-                <Stack.Screen
-                  name="DrawerNavigator"
-                  component={DrawerNavigator}
-                  options={{ headerShown: false }}
-                />
-              </>
+              isNewAccount ? (
+                <>
+                  <Stack.Screen
+                    name="CreateStoreScreen"
+                    component={CreateStoreScreen}
+                    options={{ title: "Create Store" }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen
+                    name="DrawerNavigator"
+                    component={DrawerNavigator}
+                    options={{ headerShown: false }}
+                  />
+                </>
+              )
             ) : (
               <>
                 <Stack.Screen
