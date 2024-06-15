@@ -1,3 +1,4 @@
+import { useContext, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -5,9 +6,49 @@ import {
   TextInput,
   View,
   Button,
+  Alert,
 } from "react-native";
+import { AuthContext } from "../contexts/AuthContext";
+import { gql, useMutation } from "@apollo/client";
+import * as SecureStore from "expo-secure-store";
+import { Link } from "@react-navigation/native";
+
+const LOGIN = gql`
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      access_token
+    }
+  }
+`;
 
 export default function LoginScreen({ navigation }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [handleLogin, { data, loading, error }] = useMutation(LOGIN);
+
+  const { isSignedIn, setIsSignedIn } = useContext(AuthContext);
+
+  async function handleSubmit() {
+    try {
+      console.log(email);
+      console.log(password);
+      const result = await handleLogin({ variables: { email, password } });
+      console.log(result);
+      //save token in SecureStore
+      await SecureStore.setItem("access_token", result.data.login.access_token);
+      setIsSignedIn(true);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", error.message, [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        { text: "OK", onPress: () => console.log("OK Pressed") },
+      ]);
+    }
+  }
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
@@ -18,6 +59,8 @@ export default function LoginScreen({ navigation }) {
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
+          value={email}
+          onChangeText={(e) => setEmail(e)}
         />
         <TextInput
           style={styles.input}
@@ -25,14 +68,15 @@ export default function LoginScreen({ navigation }) {
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
+          value={password}
+          onChangeText={(e) => setPassword(e)}
         />
-        <Button
-          title="Login"
-          onPress={() => {
-            navigation.navigate("DrawerNavigator");
-            /* Handle login */
-          }}
-        />
+        <Button title="Login" onPress={handleSubmit} />
+
+        <Text style={styles.register}>
+          Don't have an account?{" "}
+          <Link to={{ screen: "RegisterScreen" }}>Register</Link>
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -62,5 +106,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
     backgroundColor: "#fff",
+  },
+  registerLink: {
+    color: "blue",
+    textDecorationLine: "underline",
   },
 });
