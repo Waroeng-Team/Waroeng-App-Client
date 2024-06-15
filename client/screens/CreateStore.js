@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-export default function CreateStoreScreen() {
+export default function CreateStoreScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
@@ -43,6 +43,7 @@ export default function CreateStoreScreen() {
           style={styles.button}
           onPress={() => {
             /* Handle save */
+            navigation.navigate("StoresScreen");
           }}
         >
           <Text style={styles.buttonText}>Simpan</Text>
