@@ -10,6 +10,7 @@ import CreateStoreScreen from "../screens/CreateStore";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import * as SecureStore from "expo-secure-store";
+import StoresScreen from "../screens/StoresScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -45,6 +46,7 @@ export default function DrawerNavigator() {
         component={ProductsScreen}
       />
       <Drawer.Screen name="CreateStore" component={CreateStoreScreen} />
+      <Drawer.Screen name="StoresScreen" component={StoresScreen} />
     </Drawer.Navigator>
   );
 }
