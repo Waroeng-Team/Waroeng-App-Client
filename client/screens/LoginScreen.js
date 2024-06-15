@@ -72,12 +72,14 @@ export default function LoginScreen({ navigation }) {
           onChangeText={(e) => setPassword(e)}
         />
         <Button title="Login" onPress={handleSubmit} />
-
-        <Text style={styles.register}>
-          Don't have an account?{" "}
-          <Link to={{ screen: "RegisterScreen" }}>Register</Link>
-        </Text>
       </View>
+
+      <Text style={styles.register}>
+        Don't have an account?{" "}
+        <Link style={styles.registerLink} to={{ screen: "RegisterScreen" }}>
+          Register
+        </Link>
+      </Text>
     </SafeAreaView>
   );
 }
@@ -91,6 +93,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     width: "80%",
+    marginBottom: 10,
   },
   title: {
     fontSize: 32,

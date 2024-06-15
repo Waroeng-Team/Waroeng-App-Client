@@ -1,3 +1,5 @@
+import { gql, useMutation } from "@apollo/client";
+import { useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -5,9 +7,39 @@ import {
   TextInput,
   View,
   Button,
+  Alert,
 } from "react-native";
 
-export default function RegisterScreen() {
+const REGISTER = gql`
+  mutation Register($name: String, $email: String, $password: String) {
+    register(name: $name, email: $email, password: $password) {
+      _id
+      email
+      isNewAccount
+      name
+      password
+    }
+  }
+`;
+
+export default function RegisterScreen({ navigation }) {
+  const [handleRegister, { data, loading, error }] = useMutation(REGISTER);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async () => {
+    try {
+      const result = await handleRegister({
+        variables: { name, email, password },
+      });
+      console.log(result);
+      navigation.navigate("LoginScreen");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+      console.log(error);
+    }
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
@@ -18,6 +50,7 @@ export default function RegisterScreen() {
           placeholder="Username"
           autoCapitalize="none"
           autoCorrect={false}
+          onChangeText={(text) => setName(text)}
         />
         <TextInput
           style={styles.input}
@@ -25,6 +58,7 @@ export default function RegisterScreen() {
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
+          onChangeText={(text) => setEmail(text)}
         />
         <TextInput
           style={styles.input}
@@ -32,13 +66,9 @@ export default function RegisterScreen() {
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
+          onChangeText={(text) => setPassword(text)}
         />
-        <Button
-          title="Sign Up"
-          onPress={() => {
-            /* Handle sign up */
-          }}
-        />
+        <Button title="Sign Up" onPress={handleSubmit} />
       </View>
     </SafeAreaView>
   );

@@ -39,7 +39,7 @@ export default function App() {
     <AuthContext.Provider value={{ isSignedIn, setIsSignedIn }}>
       <ApolloProvider client={client}>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="LoginScreen">
+          <Stack.Navigator>
             {isSignedIn ? (
               <>
                 {/* <Stack.Screen
@@ -59,7 +59,11 @@ export default function App() {
               </>
             ) : (
               <>
-                <Stack.Screen name="LoginScreen" component={LoginScreen} />
+                <Stack.Screen
+                  name="LoginScreen"
+                  component={LoginScreen}
+                  options={{ headerShown: false }}
+                />
                 <Stack.Screen
                   name="RegisterScreen"
                   component={RegisterScreen}
