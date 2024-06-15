@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useState } from "react";
 import { useMutation, gql } from "@apollo/client";
+import { GET_STORES } from "./StoresScreen";
 
 const CREATE_STORE = gql`
   mutation CreateStore(
@@ -43,7 +44,11 @@ export default function CreateStoreScreen() {
   const [address, setAddress] = useState("");
   const [since, setSince] = useState("");
 
-  const [createStore, { loading, error, data }] = useMutation(CREATE_STORE);
+  const [createStore, { loading, error, data }] = useMutation(CREATE_STORE, {
+    refetchQueries: [
+      GET_STORES
+    ]
+  });
 
   const handleCreateStore = async () => {
     try {
