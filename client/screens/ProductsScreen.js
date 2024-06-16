@@ -1,9 +1,11 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 import ProductCard from "../components/ProductCard";
-import { useState, useLayoutEffect } from "react";
+import { useState, useLayoutEffect, useEffect, useCallback } from "react";
 import SearchBar from "../components/SearchBar";
 import { ScrollView } from "react-native-gesture-handler";
 import { gql, useQuery } from "@apollo/client";
+import * as SecureStore from "expo-secure-store";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const GET_ALL_ITEMS = gql`
   query GetAllItems($storeId: ID!) {
@@ -23,14 +25,36 @@ export const GET_ALL_ITEMS = gql`
   }
 `;
 
+export const GET_STORE_BY_ID = gql`
+  query GetStoreById($id: ID) {
+    getStoreById(_id: $id) {
+      _id
+      name
+    }
+  }
+`;
+
 export default function ProductsScreen({ navigation }) {
+  const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState(products);
-  // const { loading, error, data } = useQuery(GET_ALL_ITEMS, {
-  //   fetchPolicy: "no-cache",
-  // });
-  // console.log(data)
+  const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
+    variables: { storeId },
+    fetchPolicy: "no-cache",
+  });
 
+  const { data: storeDetail, refetch: refetchStoreDetail } = useQuery(
+    GET_STORE_BY_ID,
+    {
+      variables: { id: storeId },
+      fetchPolicy: "no-cache",
+    }
+  );
+
+  async function getStoreId() {
+    let storeId = await SecureStore.getItemAsync("storeId");
+    setStoreId(storeId);
+  }
   //dummy data products
   const products = [
     {
@@ -85,25 +109,46 @@ export default function ProductsScreen({ navigation }) {
     });
   }, [navigation, searchQuery]);
 
+  useFocusEffect(
+    useCallback(() => {
+      getStoreId();
+      if (storeId) {
+        refetch();
+        refetchStoreDetail();
+      }
+    }, [storeId])
+  );
   return (
     <>
-      <ScrollView>
-        <View style={styles.container}>
-          <Text style={styles.title}>Snack</Text>
-          <View style={styles.productsContainer}>
-            {products.map((product, id) => {
-              return (
-                <ProductCard
-                  key={id}
-                  imageUrl={product.imageUrl}
-                  name={product.name}
-                  price={product.price}
-                />
-              );
-            })}
-          </View>
+      {data?.getAllItems.length == 0 || !data ? (
+        <View style={styles.messageContainer}>
+          <Text style={styles.messageText}>No items</Text>
+          <TouchableOpacity
+            style={styles.chooseStoreButton}
+            onPress={() => navigation.navigate("StoresScreen")}
+          >
+            <Text style={styles.chooseStoreButtonText}>Choose your store</Text>
+          </TouchableOpacity>
         </View>
-      </ScrollView>
+      ) : (
+        <ScrollView>
+          <View style={styles.container}>
+            <Text style={styles.title}>{storeDetail?.getStoreById.name}</Text>
+            <View style={styles.productsContainer}>
+              {data?.getAllItems.map((product, index) => {
+                return (
+                  <ProductCard
+                    key={index}
+                    imageUrl={product.imageUrl}
+                    name={product.name}
+                    price={product.sellPrice}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      )}
 
       <TouchableOpacity
         style={styles.addButton}
@@ -171,6 +216,27 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: "#fff",
     fontSize: 24,
+    fontWeight: "bold",
+  },
+  messageContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  messageText: {
+    fontSize: 18,
+    color: "#888",
+  },
+  chooseStoreButton: {
+    backgroundColor: "#FFD700",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  chooseStoreButtonText: {
+    fontSize: 16,
+    color: "#000",
     fontWeight: "bold",
   },
 });
