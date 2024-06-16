@@ -20,6 +20,7 @@ export default function DrawerNavigator() {
   async function handleLogout() {
     try {
       await SecureStore.deleteItemAsync("access_token");
+      await SecureStore.deleteItemAsync("storeId");
       setIsSignedIn(false);
     } catch (error) {
       console.log(error);
