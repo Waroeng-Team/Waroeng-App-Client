@@ -37,7 +37,7 @@ const CREATE_STORE = gql`
   }
 `;
 
-export default function CreateStoreScreen() {
+export default function CreateStoreScreen({ navigation }) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -65,6 +65,7 @@ export default function CreateStoreScreen() {
       setPhoneNumber("");
       setAddress("");
       setSince("");
+      navigation.navigate("StoresScreen");
 
       console.log(data);
     } catch (error) {

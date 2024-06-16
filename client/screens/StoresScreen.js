@@ -21,7 +21,11 @@ export const GET_STORES = gql`
 
 export default function StoresScreen({ navigation }) {
   //   const [searchQuery, setSearchQuery] = useState("");
-  const { loading, error, data } = useQuery(GET_STORES);
+  const { loading, error, data } = useQuery(GET_STORES, {
+    fetchPolicy: "no-cache",
+  });
+
+
 
   //dummy data stores
   // const stores = [
@@ -69,6 +73,7 @@ export default function StoresScreen({ navigation }) {
                   phoneNumber={store.phoneNumber}
                   description={store.description}
                   address={store.address}
+                  storeId={store._id}
                 />
               );
             })}
@@ -78,7 +83,7 @@ export default function StoresScreen({ navigation }) {
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate("CreateStoreScreen")}
+        onPress={() => navigation.navigate("ProductsScreen")}
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>

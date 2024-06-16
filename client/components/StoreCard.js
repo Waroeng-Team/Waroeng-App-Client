@@ -5,16 +5,27 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import * as SecureStore from "expo-secure-store";
 
-const StoreCard = ({ name, address }) => (
-  <View style={styles.card}>
-    <Text style={styles.storeName}>{name}</Text>
-    <Text style={styles.address}>{address}</Text>
-    <TouchableOpacity style={styles.button}>
-      <Text style={styles.buttonText}>Detail</Text>
-    </TouchableOpacity>
-  </View>
-);
+const StoreCard = ({ name, address, storeId }) => {
+  const navigation = useNavigation();
+
+  async function handleOnChooseStore() {
+    await SecureStore.setItemAsync("storeId", storeId);
+    navigation.navigate("ProductsScreen");
+  }
+
+  return (
+    <View style={styles.card}>
+      <Text style={styles.storeName}>{name}</Text>
+      <Text style={styles.address}>{address}</Text>
+      <TouchableOpacity style={styles.button} onPress={handleOnChooseStore}>
+        <Text style={styles.buttonText}>Choose this store</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
 const styles = StyleSheet.create({
   container: {
     flex: 1,
