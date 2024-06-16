@@ -33,7 +33,7 @@ export default function App() {
   useEffect(() => {
     async function getToken() {
       try {
-        const token = await SecureStore.getItem("access_token");
+        const token = await SecureStore.getItemAsync("access_token");
         if (token) {
           const decoded = jwtDecode(token);
           if (decoded.isNewAccount) {

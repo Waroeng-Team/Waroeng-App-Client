@@ -3,10 +3,33 @@ import ProductCard from "../components/ProductCard";
 import { useState, useLayoutEffect } from "react";
 import SearchBar from "../components/SearchBar";
 import { ScrollView } from "react-native-gesture-handler";
+import { gql, useQuery } from "@apollo/client";
+
+export const GET_ALL_ITEMS = gql`
+  query GetAllItems($storeId: ID!) {
+    getAllItems(storeId: $storeId) {
+      _id
+      name
+      category
+      description
+      imageUrl
+      stock
+      buyPrice
+      sellPrice
+      storeId
+      barcode
+      createdAt
+    }
+  }
+`;
 
 export default function ProductsScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState(products);
+  // const { loading, error, data } = useQuery(GET_ALL_ITEMS, {
+  //   fetchPolicy: "no-cache",
+  // });
+  // console.log(data)
 
   //dummy data products
   const products = [
