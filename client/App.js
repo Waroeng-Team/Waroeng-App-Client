@@ -36,7 +36,8 @@ export default function App() {
         const token = await SecureStore.getItemAsync("access_token");
         if (token) {
           const decoded = jwtDecode(token);
-          if (decoded.isNewAccount) {
+          // console.log(decoded);
+          if (decoded.isNewAccount == true) {
             setIsNewAccount(true);
           }
           setIsSignedIn(true);
@@ -63,6 +64,11 @@ export default function App() {
                     component={CreateStoreScreen}
                     options={{ title: "Create Store" }}
                   />
+                  <Stack.Screen
+                    name="DrawerNavigator"
+                    component={DrawerNavigator}
+                    options={{ headerShown: false }}
+                  />
                 </>
               ) : (
                 <>
@@ -70,6 +76,11 @@ export default function App() {
                     name="DrawerNavigator"
                     component={DrawerNavigator}
                     options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="CreateProductScreen"
+                    component={CreateProductScreen}
+                    options={{ title: "Create Product" }}
                   />
                 </>
               )
