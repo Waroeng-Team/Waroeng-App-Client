@@ -45,9 +45,7 @@ export default function CreateStoreScreen() {
   const [since, setSince] = useState("");
 
   const [createStore, { loading, error, data }] = useMutation(CREATE_STORE, {
-    refetchQueries: [
-      GET_STORES
-    ]
+    refetchQueries: [GET_STORES],
   });
 
   const handleCreateStore = async () => {
