@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
 
-export default function ProductCard({ product, handleBuy }) {
+export default function ProductCard({
+  product,
+  handleBuy,
+  handleReduceBuy,
+  isCancel,
+}) {
   const { name, sellPrice, stock, imageUrl } = product;
   // console.log("🚀 ~ ProductCard ~ sellPrice:", sellPrice);
   const [amount, setAmount] = useState(0);
+
+  useEffect(() => {
+    if (isCancel) {
+      setAmount(0);
+    }
+  }, [isCancel]);
 
   return (
     <View style={styles.card}>
@@ -22,12 +33,12 @@ export default function ProductCard({ product, handleBuy }) {
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
         </View>
-        {amount === 0 ? (
+        {amount === 0 || isCancel === true ? (
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => {
               setAmount(1);
-              handleBuy();
+              handleBuy(product);
             }}>
             <Text style={styles.addButtonText}>Add to Cart</Text>
           </TouchableOpacity>
@@ -37,6 +48,7 @@ export default function ProductCard({ product, handleBuy }) {
               style={styles.removeButton}
               onPress={() => {
                 setAmount(amount - 1);
+                handleReduceBuy(product);
               }}>
               <Text style={styles.removeButtonText}>-</Text>
             </TouchableOpacity>
@@ -45,6 +57,7 @@ export default function ProductCard({ product, handleBuy }) {
               style={styles.addButton}
               onPress={() => {
                 setAmount(amount + 1);
+                handleBuy(product);
               }}>
               <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
