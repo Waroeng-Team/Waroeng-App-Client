@@ -8,7 +8,6 @@ export default function ProductCard({
   isCancel,
 }) {
   const { name, sellPrice, stock, imageUrl } = product;
-  // console.log("🚀 ~ ProductCard ~ sellPrice:", sellPrice);
   const [amount, setAmount] = useState(0);
 
   useEffect(() => {
@@ -16,6 +15,8 @@ export default function ProductCard({
       setAmount(0);
     }
   }, [isCancel]);
+
+  const disabled = stock <= 0 || amount === stock;
 
   return (
     <View style={styles.card}>
@@ -33,14 +34,15 @@ export default function ProductCard({
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
         </View>
-        {amount === 0 || isCancel === true ? (
+        {amount === 0 || isCancel ? (
           <TouchableOpacity
-            style={styles.addButton}
+            style={[styles.addButton, disabled && styles.disabledButton]}
+            disabled={disabled}
             onPress={() => {
               setAmount(1);
               handleBuy(product);
             }}>
-            <Text style={styles.addButtonText}>Add to Cart</Text>
+            <Text style={styles.addButtonText}>Tambah</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.amountRow}>
@@ -54,7 +56,8 @@ export default function ProductCard({
             </TouchableOpacity>
             <Text style={styles.amountText}>{amount}</Text>
             <TouchableOpacity
-              style={styles.addButton}
+              style={[styles.addButton, disabled && styles.disabledButton]}
+              disabled={disabled}
               onPress={() => {
                 setAmount(amount + 1);
                 handleBuy(product);
@@ -147,6 +150,9 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  disabledButton: {
+    backgroundColor: "#ccc",
   },
   removeButton: {
     backgroundColor: "#ef5350",
