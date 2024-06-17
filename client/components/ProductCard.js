@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-export default function ProductCard({ imageUrl, name, price }) {
+export default function ProductCard({ imageUrl, name, price, handleBuy }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardContent}>
@@ -18,28 +18,21 @@ export default function ProductCard({ imageUrl, name, price }) {
             style={styles.editButton}
             onPress={() => {
               /* Handle edit */
-            }}
-          >
+            }}>
             <Text style={styles.editButtonText}>Ubah</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => {
               /* Handle delete */
-            }}
-          >
+            }}>
             <Text style={styles.deleteButtonText}>Hapus</Text>
           </TouchableOpacity>
         </View>
       </View>
       <View>
         <Image source={{ uri: imageUrl }} style={styles.productImage} />
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => {
-            /* Handle add */
-          }}
-        >
+        <TouchableOpacity style={styles.addButton} onPress={handleBuy}>
           <Text style={styles.addButtonText}>Tambah</Text>
         </TouchableOpacity>
       </View>

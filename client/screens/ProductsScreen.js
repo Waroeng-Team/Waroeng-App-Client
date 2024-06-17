@@ -37,7 +37,9 @@ export const GET_STORE_BY_ID = gql`
 export default function ProductsScreen({ navigation }) {
   const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  // const [filteredProducts, setFilteredProducts] = useState(products);
+  const [isBuy, setIsBuy] = useState(false);
+
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
     variables: { storeId },
     fetchPolicy: "no-cache",
@@ -55,51 +57,6 @@ export default function ProductsScreen({ navigation }) {
     let storeId = await SecureStore.getItemAsync("storeId");
     setStoreId(storeId);
   }
-  //dummy data products
-  const products = [
-    {
-      id: "1",
-      name: "Beng Beng",
-      price: "250000",
-      imageUrl: "https://www.mayora.com/storage/files/2017-bengbeng.png",
-    },
-    {
-      id: "1",
-      name: "Astro",
-      price: "999000",
-      imageUrl: "https://www.mayora.com/storage/files/coki.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-  ];
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -108,6 +65,11 @@ export default function ProductsScreen({ navigation }) {
       ),
     });
   }, [navigation, searchQuery]);
+
+  const handleBuy = () => {
+    setIsBuy(true);
+    console.log("tes masuk");
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -125,8 +87,7 @@ export default function ProductsScreen({ navigation }) {
           <Text style={styles.messageText}>No items</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
-            onPress={() => navigation.navigate("StoresScreen")}
-          >
+            onPress={() => navigation.navigate("StoresScreen")}>
             <Text style={styles.chooseStoreButtonText}>Choose your store</Text>
           </TouchableOpacity>
         </View>
@@ -139,6 +100,7 @@ export default function ProductsScreen({ navigation }) {
                 return (
                   <ProductCard
                     key={index}
+                    handleBuy={handleBuy}
                     imageUrl={product.imageUrl}
                     name={product.name}
                     price={product.sellPrice}
@@ -150,12 +112,23 @@ export default function ProductsScreen({ navigation }) {
         </ScrollView>
       )}
 
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate("CreateProductScreen")}
-      >
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+      {isBuy ? (
+        <>
+          <View>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => navigation.navigate("CreateProductScreen")}>
+              <Text style={styles.addButtonText}>buy</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate("CreateProductScreen")}>
+          <Text style={styles.addButtonText}>+</Text>
+        </TouchableOpacity>
+      )}
     </>
   );
 }
