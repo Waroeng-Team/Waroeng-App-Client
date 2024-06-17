@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import ProductCard from "../components/ProductCard";
 import { useState, useLayoutEffect, useEffect, useCallback } from "react";
 import SearchBar from "../components/SearchBar";
 import { ScrollView } from "react-native-gesture-handler";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -34,13 +34,30 @@ export const GET_STORE_BY_ID = gql`
   }
 `;
 
+export const ADD_TRANSACTION = gql`
+  mutation Addtransaction($type: String, $items: [ItemInput], $storeId: ID) {
+    addtransaction(type: $type, items: $items, storeId: $storeId) {
+      _id
+      type
+      items {
+        itemId
+        quantity
+      }
+      total
+      storeId
+      createdAt
+    }
+  }
+`;
 export default function ProductsScreen({ navigation }) {
   const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  // const [filteredProducts, setFilteredProducts] = useState(products);
   const [bought, setBought] = useState([]);
   const [isBuy, setIsBuy] = useState(false);
+  const [isCancel, setIsCancel] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [addTransaction, { loading: addTransactionLoading }] =
+    useMutation(ADD_TRANSACTION);
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
     variables: { storeId },
@@ -68,19 +85,89 @@ export default function ProductsScreen({ navigation }) {
     });
   }, [navigation, searchQuery]);
 
-  const handleBuy = () => {
+  const handleBuy = (item) => {
     setIsBuy(true);
-    itemIsBought = bought.find((item) => item._id === product._id);
+    setIsCancel(false);
+    let itemIsBought = bought.find(
+      (boughtItem) => boughtItem.itemId === item._id
+    );
 
     if (!itemIsBought) {
-      setBought([...bought, { itemId, quantity: 1 }]);
+      setBought([
+        ...bought,
+        { itemId: item._id, quantity: 1, price: item.sellPrice },
+      ]);
     } else {
-      itemIsBought.quantity += 1;
+      setBought(
+        bought.map((boughtItem) =>
+          boughtItem.itemId === item._id
+            ? { ...boughtItem, quantity: boughtItem.quantity + 1 }
+            : boughtItem
+        )
+      );
+    }
+  };
+
+  const handleReduceBuy = (item) => {
+    setIsBuy(true);
+    setIsCancel(false);
+    let itemIsBought = bought.find(
+      (boughtItem) => boughtItem.itemId === item._id
+    );
+
+    if (itemIsBought) {
+      if (itemIsBought.quantity > 1) {
+        setBought(
+          bought.map((boughtItem) =>
+            boughtItem.itemId === item._id
+              ? { ...boughtItem, quantity: boughtItem.quantity - 1 }
+              : boughtItem
+          )
+        );
+      } else if (itemIsBought.quantity === 1) {
+        setBought(
+          bought.filter((boughtItem) => boughtItem.itemId !== item._id)
+        );
+      }
     }
   };
 
   const handleCancelBuy = () => {
     setIsBuy(false);
+    setIsCancel(true);
+    setBought([]);
+  };
+
+  useEffect(() => {
+    const total = bought.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    setTotalPrice(total);
+    // console.log(bought);
+  }, [bought]);
+
+  //* Click button buy
+  const handleBuyTransaction = async () => {
+    try {
+      const items = bought.map((item) => ({
+        itemId: item.itemId,
+        quantity: item.quantity,
+      }));
+      // console.log("🚀 ~ items ~ items:", items);
+
+      const transaction = {
+        type: "income",
+        items,
+        storeId,
+      };
+      // console.log("🚀 ~ handleBuyTransaction ~ transaction:", transaction);
+
+      const result = await addTransaction({ variables: { transaction } });
+      console.log("🚀 ~ handleBuyTransaction ~ result:", result);
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   };
 
   useFocusEffect(
@@ -92,6 +179,7 @@ export default function ProductsScreen({ navigation }) {
       }
     }, [storeId])
   );
+
   return (
     <>
       {data?.getAllItems.length == 0 || !data ? (
@@ -99,8 +187,7 @@ export default function ProductsScreen({ navigation }) {
           <Text style={styles.messageText}>No items</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
-            onPress={() => navigation.navigate("StoresScreen")}
-          >
+            onPress={() => navigation.navigate("StoresScreen")}>
             <Text style={styles.chooseStoreButtonText}>Choose your store</Text>
           </TouchableOpacity>
         </View>
@@ -114,7 +201,9 @@ export default function ProductsScreen({ navigation }) {
                   <ProductCard
                     key={index}
                     handleBuy={handleBuy}
+                    handleReduceBuy={handleReduceBuy}
                     setBought={setBought}
+                    isCancel={isCancel}
                     product={product}
                   />
                 );
@@ -124,7 +213,7 @@ export default function ProductsScreen({ navigation }) {
         </ScrollView>
       )}
 
-      {isBuy && bought.length === 0 ? (
+      {isBuy && bought.length > 0 ? (
         <>
           <View
             style={{
@@ -135,19 +224,16 @@ export default function ProductsScreen({ navigation }) {
               margin: 8,
               borderColor: "grey",
               borderWidth: 1,
-            }}
-          >
+            }}>
             <View
-              style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}
-            >
+              style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}>
               <Text style={{ fontSize: 30, fontWeight: "bold" }}>Total</Text>
               <Text style={{ fontSize: 25, fontWeight: "bold" }}>
-                Rp 25.000
+                Rp {totalPrice}
               </Text>
             </View>
             <View
-              style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}
-            >
+              style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}>
               <TouchableOpacity
                 style={{
                   backgroundColor: "#FFD700",
@@ -157,14 +243,13 @@ export default function ProductsScreen({ navigation }) {
                   paddingRight: 20,
                   borderRadius: 10,
                 }}
-              >
+                onPress={handleBuyTransaction}>
                 <Text
                   style={{
                     fontWeight: "bold",
                     fontSize: 20,
                     alignSelf: "center",
-                  }}
-                >
+                  }}>
                   Buy
                 </Text>
               </TouchableOpacity>
@@ -178,10 +263,9 @@ export default function ProductsScreen({ navigation }) {
                   paddingRight: 20,
                   borderRadius: 10,
                 }}
-              >
+                onPress={handleCancelBuy}>
                 <Text
-                  style={{ color: "red", fontWeight: "bold", fontSize: 20 }}
-                >
+                  style={{ color: "red", fontWeight: "bold", fontSize: 20 }}>
                   Cancel
                 </Text>
               </TouchableOpacity>
@@ -191,8 +275,7 @@ export default function ProductsScreen({ navigation }) {
       ) : (
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate("CreateProductScreen")}
-        >
+          onPress={() => navigation.navigate("CreateProductScreen")}>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       )}
