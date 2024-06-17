@@ -1,5 +1,9 @@
-'use client'
+"use client";
 
+import { gql } from "@apollo/client";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import * as ImagePicker from "expo-image-picker";
 import {
   SafeAreaView,
   StyleSheet,
@@ -8,77 +12,203 @@ import {
   View,
   TouchableOpacity,
   Image,
+  Button,
 } from "react-native";
+import {
+  FlatList,
+  GestureHandlerRootView,
+  ScrollView,
+} from "react-native-gesture-handler";
+
+const CREATE_ITEM = gql`
+  mutation CreateItem(
+    $name: String!
+    $imageUrl: String!
+    $description: String!
+    $category: String!
+    $stock: Int!
+    $buyPrice: Int!
+    $sellPrice: Int!
+    $createdAt: String!
+    $storeId: ID!
+  ) {
+    createItem(
+      name: $name
+      imageUrl: $imageUrl
+      description: $description
+      category: $category
+      stock: $stock
+      buyPrice: $buyPrice
+      sellPrice: $sellPrice
+      createdAt: $createdAt
+      storeId: $storeId
+    ) {
+      _id
+      barcode
+      buyPrice
+      category
+      createdAt
+      description
+      imageUrl
+      name
+      sellPrice
+      stock
+      storeId
+    }
+  }
+`;
 
 export default function CreateProductScreen() {
-  // const []
+  const [name, setName] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [stock, setStock] = useState(0);
+  const [buyPrice, setBuyPrice] = useState(0);
+  const [sellPrice, setSellPrice] = useState(0);
+  const [image, setImage] = useState();
 
+  const route = useRoute();
+  const storeId = route.params.storeId;
+  // console.log(storeId);
+  const [createItem, { data, loading, error }] = useMutation(CREATE_ITEM);
+
+  const handleSubmit = async () => {
+    try {
+      const response = await createItem({
+        variables: {
+          name,
+          imageUrl,
+          description,
+          category,
+          stock: parseInt(stock),
+          buyPrice: parseInt(buyPrice),
+          sellPrice: parseInt(sellPrice),
+          createdAt: new Date().toISOString(),
+          storeId,
+        },
+      });
+      console.log("Item created:", response.data.createItem);
+      alert("Product successfully created!");
+    } catch (err) {
+      console.error("Error creating product:", err);
+      alert("Failed to create product.");
+    }
+  };
+
+  const uploadImage = async () => {
+    try {
+      await ImagePicker.requestCameraPermissionsAsync();
+      let result = await ImagePicker.launchCameraAsync({
+        cameraType: ImagePicker.cameraType.front,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        //save image
+        await saveImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Error uploading image");
+    }
+  };
+
+  const saveImage = async (image) => {
+    try {
+      //update displayed image
+      setImage(image);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.innerContainer}>
-        <Text style={styles.label}>Nama Produk</Text>
-        <TextInput style={styles.input} placeholder="Contoh: Tahu Bulat" />
-
-        <Text style={styles.label}>Harga Beli</Text>
-        <View style={styles.priceInputContainer}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView style={styles.container}>
+        <ScrollView style={styles.innerContainer}>
+          <Text style={styles.label}>Nama Produk</Text>
           <TextInput
-            style={styles.inputHalf}
-            placeholder="Rp0"
-            keyboardType="numeric"
+            style={styles.input}
+            placeholder="Contoh: Tahu Bulat"
+            value={name}
+            onChangeText={(text) => setName(text)}
           />
+
+          <Text style={styles.label}>Harga Beli</Text>
+          <View style={styles.priceInputContainer}>
+            <TextInput
+              style={styles.inputHalf}
+              placeholder="Rp0"
+              keyboardType="numeric"
+              value={buyPrice}
+              onChangeText={(text) => setBuyPrice(text)}
+            />
+            <TextInput
+              style={styles.inputHalf}
+              placeholder="Rp0"
+              keyboardType="numeric"
+              value={sellPrice}
+              onChangeText={(text) => setSellPrice(text)}
+            />
+          </View>
+
+          <Text style={styles.label}>Deskripsi Produk</Text>
           <TextInput
-            style={styles.inputHalf}
-            placeholder="Rp0"
-            keyboardType="numeric"
+            style={[styles.input, { height: 100 }]}
+            placeholder="Deskripsikan produk kamu"
+            multiline={true}
+            value={description}
+            onChangeText={(text) => setDescription(text)}
           />
-        </View>
 
-        <Text style={styles.label}>Deskripsi Produk</Text>
-        <TextInput
-          style={[styles.input, { height: 100 }]}
-          placeholder="Deskripsikan produk kamu"
-          multiline={true}
-        />
-
-        <Text style={styles.label}>Kategori</Text>
-        <TextInput style={styles.input} placeholder="Nama kategori" />
-
-        <View style={styles.imageUploadContainer}>
-          <Image
-            source={{ uri: "https://via.placeholder.com/150" }}
-            style={styles.imagePlaceholder}
+          <Text style={styles.label}>Kategori</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nama kategori"
+            value={category}
+            onChangeText={(text) => setCategory(text)}
           />
-        </View>
 
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.buttonOutline}
-            onPress={() => {
-              /* Handle camera upload */
-            }}
-          >
-            <Text style={styles.buttonOutlineText}>Kamera</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.buttonFilled}
-            onPress={() => {
-              /* Handle gallery upload */
-            }}
-          >
-            <Text style={styles.buttonFilledText}>Galeri</Text>
-          </TouchableOpacity>
-        </View>
+          <Text style={styles.label}>Image Url</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Image Url"
+            value={category}
+            onChangeText={(text) => setImageUrl(text)}
+          />
 
-        <TouchableOpacity
-          style={styles.saveButton}
-          onPress={() => {
-            /* Handle save */
-          }}
-        >
-          <Text style={styles.saveButtonText}>Simpan</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+          <View style={styles.imageUploadContainer}>
+            <Image
+              source={{ uri: "https://via.placeholder.com/150" }}
+              style={styles.imagePlaceholder}
+            />
+          </View>
+
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={styles.buttonOutline}
+              onPress={uploadImage}
+            >
+              <Text style={styles.buttonOutlineText}>Kamera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.buttonFilled}
+              onPress={() => {
+                /* Handle gallery upload */
+              }}
+            >
+              <Text style={styles.buttonFilledText}>Galeri</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
+            <Text style={styles.saveButtonText}>Simpan</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 

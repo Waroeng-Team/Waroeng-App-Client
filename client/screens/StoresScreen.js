@@ -25,8 +25,6 @@ export default function StoresScreen({ navigation }) {
     fetchPolicy: "no-cache",
   });
 
-
-
   //dummy data stores
   // const stores = [
   //   {

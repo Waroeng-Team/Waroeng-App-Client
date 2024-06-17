@@ -37,7 +37,7 @@ export const GET_STORE_BY_ID = gql`
 export default function ProductsScreen({ navigation }) {
   const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  // const [filteredProducts, setFilteredProducts] = useState(products);
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
     variables: { storeId },
     fetchPolicy: "no-cache",
@@ -56,50 +56,6 @@ export default function ProductsScreen({ navigation }) {
     setStoreId(storeId);
   }
   //dummy data products
-  const products = [
-    {
-      id: "1",
-      name: "Beng Beng",
-      price: "250000",
-      imageUrl: "https://www.mayora.com/storage/files/2017-bengbeng.png",
-    },
-    {
-      id: "1",
-      name: "Astro",
-      price: "999000",
-      imageUrl: "https://www.mayora.com/storage/files/coki.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-    {
-      id: "1",
-      name: "blok",
-      price: "5000",
-      imageUrl: "https://www.mayora.com/storage/files/astor.png",
-    },
-  ];
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -113,6 +69,7 @@ export default function ProductsScreen({ navigation }) {
     useCallback(() => {
       getStoreId();
       if (storeId) {
+        console.log(storeId, "<<< store idnya");
         refetch();
         refetchStoreDetail();
       }
@@ -152,7 +109,13 @@ export default function ProductsScreen({ navigation }) {
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate("CreateProductScreen")}
+        onPress={() =>
+          //add a console log
+          {
+            console.log(storeId, "<<< store id ke klik");
+            navigation.navigate("CreateProductScreen", { storeId: storeId });
+          }
+        }
       >
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
