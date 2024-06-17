@@ -163,8 +163,10 @@ export default function ProductsScreen({ navigation }) {
       };
       // console.log("🚀 ~ handleBuyTransaction ~ transaction:", transaction);
 
-      const result = await addTransaction({ variables: { transaction } });
+      const result = await addTransaction({ variables: transaction });
       console.log("🚀 ~ handleBuyTransaction ~ result:", result);
+      setIsCancel(true);
+      setIsBuy(false);
     } catch (error) {
       Alert.alert("Error", error.message);
     }
