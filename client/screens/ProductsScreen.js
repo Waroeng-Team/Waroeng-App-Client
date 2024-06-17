@@ -87,7 +87,8 @@ export default function ProductsScreen({ navigation }) {
           <Text style={styles.messageText}>No items</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
-            onPress={() => navigation.navigate("StoresScreen")}>
+            onPress={() => navigation.navigate("StoresScreen")}
+          >
             <Text style={styles.chooseStoreButtonText}>Choose your store</Text>
           </TouchableOpacity>
         </View>
@@ -114,18 +115,73 @@ export default function ProductsScreen({ navigation }) {
 
       {isBuy ? (
         <>
-          <View>
-            <TouchableOpacity
-              style={styles.addButton}
-              onPress={() => navigation.navigate("CreateProductScreen")}>
-              <Text style={styles.addButtonText}>buy</Text>
-            </TouchableOpacity>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              backgroundColor: "white",
+              borderRadius: 10,
+              margin: 8,
+              borderColor: "grey",
+              borderWidth: 1,
+            }}
+          >
+            <View
+              style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}
+            >
+              <Text style={{ fontSize: 30, fontWeight: "bold" }}>Total</Text>
+              <Text style={{ fontSize: 25, fontWeight: "bold" }}>
+                Rp 25.000
+              </Text>
+            </View>
+            <View
+              style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#FFD700",
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                  borderRadius: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 20,
+                    alignSelf: "center",
+                  }}
+                >
+                  Buy
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  borderColor: "red",
+                  borderWidth: 2,
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                  borderRadius: 10,
+                }}
+              >
+                <Text
+                  style={{ color: "red", fontWeight: "bold", fontSize: 20 }}
+                >
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </>
       ) : (
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => navigation.navigate("CreateProductScreen")}>
+          onPress={() => navigation.navigate("CreateProductScreen")}
+        >
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       )}
