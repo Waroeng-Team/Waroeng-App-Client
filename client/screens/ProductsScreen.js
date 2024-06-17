@@ -38,7 +38,9 @@ export default function ProductsScreen({ navigation }) {
   const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   // const [filteredProducts, setFilteredProducts] = useState(products);
+  const [bought, setBought] = useState([]);
   const [isBuy, setIsBuy] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
     variables: { storeId },
@@ -68,7 +70,17 @@ export default function ProductsScreen({ navigation }) {
 
   const handleBuy = () => {
     setIsBuy(true);
-    console.log("tes masuk");
+    itemIsBought = bought.find((item) => item._id === product._id);
+
+    if (!itemIsBought) {
+      setBought([...bought, { itemId, quantity: 1 }]);
+    } else {
+      itemIsBought.quantity += 1;
+    }
+  };
+
+  const handleCancelBuy = () => {
+    setIsBuy(false);
   };
 
   useFocusEffect(
@@ -101,9 +113,8 @@ export default function ProductsScreen({ navigation }) {
                   <ProductCard
                     key={index}
                     handleBuy={handleBuy}
-                    imageUrl={product.imageUrl}
-                    name={product.name}
-                    price={product.sellPrice}
+                    setBought={setBought}
+                    product={product}
                   />
                 );
               })}
@@ -112,7 +123,7 @@ export default function ProductsScreen({ navigation }) {
         </ScrollView>
       )}
 
-      {isBuy ? (
+      {isBuy && bought.length === 0 ? (
         <>
           <View>
             <TouchableOpacity
