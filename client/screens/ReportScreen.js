@@ -237,7 +237,7 @@ export default function ReportScreen({ navigation }) {
               <Text>Income</Text>
               <Text>Outcome</Text>
             </View>
-            {report?.transactionDetail.map((transaction) => {
+            {report?.transactionDetail.map((transaction, index) => {
               let timestamp = +transaction.createdAt;
               let date = `${new Date(timestamp)}`;
               date = date.split(" ");
@@ -254,6 +254,7 @@ export default function ReportScreen({ navigation }) {
                     paddingBottom: 5,
                     borderBottomWidth: 1,
                   }}
+                  key={index}
                 >
                   <Text>{convertDate}</Text>
                   <Text style={{ color: "green" }}>
