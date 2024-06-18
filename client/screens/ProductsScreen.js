@@ -62,7 +62,7 @@ export default function ProductsScreen({ navigation }) {
   );
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
-    variables: { storeId,search: searchQuery },
+    variables: { storeId, search: searchQuery },
     fetchPolicy: "no-cache",
   });
 
@@ -169,6 +169,8 @@ export default function ProductsScreen({ navigation }) {
       console.log("🚀 ~ handleBuyTransaction ~ result:", result);
       setIsCancel(true);
       setIsBuy(false);
+      setBought([]);
+      navigation.navigate("TransactionScreen");
     } catch (error) {
       Alert.alert("Error", error.message);
     }

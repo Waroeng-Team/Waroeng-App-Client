@@ -19,21 +19,32 @@ export const GET_DAILY_REPORT = gql`
   query GetReportByDay($storeId: ID, $date: String) {
     getReportByDay(storeId: $storeId, date: $date) {
       _id
-      profit
+      storeId
       totalIncome
       totalOutcome
+      profit
       transactionDetail {
         _id
+        storeId
         items {
           itemId
-          name
           quantity
-          buyPrice
-          sellPrice
         }
         type
         total
         createdAt
+      }
+      createdAt
+      totalItemTransaction {
+        date
+        income {
+          name
+          quantity
+        }
+        outcome {
+          name
+          quantity
+        }
       }
     }
   }
@@ -43,21 +54,32 @@ export const GET_WEEKLY_REPORT = gql`
   query GetReportByWeek($storeId: ID, $date: String) {
     getReportByWeek(storeId: $storeId, date: $date) {
       _id
-      profit
+      storeId
       totalIncome
       totalOutcome
+      profit
       transactionDetail {
         _id
+        storeId
         items {
           itemId
-          name
           quantity
-          buyPrice
-          sellPrice
         }
         type
         total
         createdAt
+      }
+      createdAt
+      totalItemTransaction {
+        date
+        income {
+          name
+          quantity
+        }
+        outcome {
+          name
+          quantity
+        }
       }
     }
   }
@@ -67,21 +89,32 @@ export const GET_MONTHLY_REPORT = gql`
   query GetReportByMonth($storeId: ID, $date: String) {
     getReportByMonth(storeId: $storeId, date: $date) {
       _id
-      profit
+      storeId
       totalIncome
       totalOutcome
+      profit
       transactionDetail {
         _id
+        storeId
         items {
           itemId
-          name
           quantity
-          buyPrice
-          sellPrice
         }
         type
         total
         createdAt
+      }
+      createdAt
+      totalItemTransaction {
+        date
+        income {
+          name
+          quantity
+        }
+        outcome {
+          name
+          quantity
+        }
       }
     }
   }
@@ -91,21 +124,32 @@ export const GET_YEARLY_REPORT = gql`
   query GetReportByYear($storeId: ID, $date: String) {
     getReportByYear(storeId: $storeId, date: $date) {
       _id
-      profit
+      storeId
       totalIncome
       totalOutcome
+      profit
       transactionDetail {
         _id
+        storeId
         items {
           itemId
-          name
           quantity
-          buyPrice
-          sellPrice
         }
         type
         total
         createdAt
+      }
+      createdAt
+      totalItemTransaction {
+        date
+        income {
+          name
+          quantity
+        }
+        outcome {
+          name
+          quantity
+        }
       }
     }
   }
@@ -116,7 +160,6 @@ export default function ReportScreen({ navigation }) {
   const [typeReport, setTypeReport] = useState("");
   const [date, setDate] = useState("");
   const [report, setReport] = useState({});
-  console.log(report)
   const [errorFetch, setErrorFetch] = useState(false);
   const { data: storeDetail, refetch: refetchStoreDetail } = useQuery(
     GET_STORE_BY_ID,
@@ -309,6 +352,170 @@ export default function ReportScreen({ navigation }) {
                   currency: "IDR",
                 }).format(report.profit)}
               </Text>
+            </View>
+            <Text
+              style={{
+                marginTop: 30,
+                fontWeight: "bold",
+                fontSize: 23,
+                alignSelf: "center",
+              }}
+            >
+              Barang keluar
+            </Text>
+            <View
+              style={{
+                borderTopWidth: 2,
+                marginRight: 5,
+                marginLeft: 5,
+                marginTop: 10,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingLeft: 5,
+                  paddingRight: 5,
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  borderBottomWidth: 2,
+                }}
+              >
+                <Text>Tanggal transaksi</Text>
+                <Text>Nama produk</Text>
+                <Text>Total barang</Text>
+              </View>
+              {report?.totalItemTransaction.map((transactionIncome, indexIncome) => {
+                return (
+                  <View key={indexIncome}>
+                    {transactionIncome.income.length > 0 ? (
+                      <>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            paddingLeft: 5,
+                            paddingRight: 5,
+                            paddingTop: 5,
+                            paddingBottom: 5,
+                            borderBottomWidth: 1,
+                          }}
+                        >
+                          <Text>{transactionIncome.date}</Text>
+                          <View>
+                            {transactionIncome.income.map(
+                              (incomeItem, indexIncomeItem) => {
+                                return (
+                                  <Text key={indexIncomeItem} style={{ marginRight: 40 }}>
+                                    - {incomeItem.name}
+                                  </Text>
+                                );
+                              }
+                            )}
+                          </View>
+
+                          <View>
+                            {transactionIncome.income.map(
+                              (incomeItem, indexIncomeQty) => {
+                                return (
+                                  <Text key={indexIncomeQty} style={{ marginRight: 10 }}>
+                                    {incomeItem.quantity}
+                                  </Text>
+                                );
+                              }
+                            )}
+                          </View>
+                        </View>
+                      </>
+                    ) : (
+                      ""
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+            <Text
+              style={{
+                marginTop: 30,
+                fontWeight: "bold",
+                fontSize: 23,
+                alignSelf: "center",
+              }}
+            >
+              Barang masuk
+            </Text>
+            <View
+              style={{
+                borderTopWidth: 2,
+                marginRight: 5,
+                marginLeft: 5,
+                marginTop: 10,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingLeft: 5,
+                  paddingRight: 5,
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  borderBottomWidth: 2,
+                }}
+              >
+                <Text>Tanggal transaksi</Text>
+                <Text>Nama produk</Text>
+                <Text>Total barang</Text>
+              </View>
+              {report?.totalItemTransaction.map((transactionOutcome, indexOutcome) => {
+                return (
+                  <View key={indexOutcome}>
+                    {transactionOutcome.outcome.length > 0 ? (
+                      <>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            paddingLeft: 5,
+                            paddingRight: 5,
+                            paddingTop: 5,
+                            paddingBottom: 5,
+                            borderBottomWidth: 1,
+                          }}
+                        >
+                          <Text>{transactionOutcome.date}</Text>
+                          <View>
+                            {transactionOutcome.outcome.map(
+                              (outcomeItem, indexOutcomeItem) => {
+                                return (
+                                  <Text key={indexOutcomeItem} style={{ marginRight: 40 }}>
+                                    - {outcomeItem.name}
+                                  </Text>
+                                );
+                              }
+                            )}
+                          </View>
+
+                          <View>
+                            {transactionOutcome.outcome.map(
+                              (outcomeItem, indexOutcomeQty) => {
+                                return (
+                                  <Text key={indexOutcomeQty} style={{ marginRight: 10 }}>
+                                    {outcomeItem.quantity}
+                                  </Text>
+                                );
+                              }
+                            )}
+                          </View>
+                        </View>
+                      </>
+                    ) : (
+                      ""
+                    )}
+                  </View>
+                );
+              })}
             </View>
             <View style={{ paddingLeft: 20, paddingRight: 20 }}>
               <TouchableOpacity
