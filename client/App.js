@@ -80,7 +80,7 @@ export default function App() {
                   <Stack.Screen
                     name="CreateProductScreen"
                     component={CreateProductScreen}
-                    options={{ title: "Create Product" }}
+                    options={{ title: "Tambah produk baru" }}
                   />
                 </>
               )
@@ -94,6 +94,7 @@ export default function App() {
                 <Stack.Screen
                   name="RegisterScreen"
                   component={RegisterScreen}
+                  options={{ headerShown: false }}
                 />
               </>
             )}

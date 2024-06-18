@@ -119,7 +119,7 @@ export default function CreateStoreScreen({ navigation }) {
           style={styles.input}
           value={since}
           onChangeText={setSince}
-          placeholder="Tahun berdiri (YYYY)"
+          placeholder="Tahun berdiri (cth: 2015)"
         />
 
         <TouchableOpacity style={styles.button} onPress={handleCreateStore}>
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
   },
   button: {
     height: 50,
-    backgroundColor: "#FFD700",
+    backgroundColor: "#ffa500",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
@@ -206,5 +206,6 @@ const styles = StyleSheet.create({
   successText: {
     color: "green",
     marginTop: 10,
+    alignSelf: "center"
   },
 });

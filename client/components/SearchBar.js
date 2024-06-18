@@ -4,7 +4,7 @@ export default function SearchBar({ value, onChangeText }) {
     <View style={styles.container}>
       <TextInput
         style={styles.input}
-        placeholder="Search..."
+        placeholder="Cari..."
         value={value}
         onChangeText={onChangeText}
       />
@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    backgroundColor: "red",
+    width:150
   },
   input: {
     width: "100%",

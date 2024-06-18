@@ -136,23 +136,28 @@ export default function CreateProductScreen({ navigation }) {
             value={name}
             onChangeText={(text) => setName(text)}
           />
-
-          <Text style={styles.label}>Harga Beli</Text>
-          <View style={styles.priceInputContainer}>
-            <TextInput
-              style={styles.inputHalf}
-              placeholder="Rp0"
-              keyboardType="numeric"
-              value={buyPrice}
-              onChangeText={(text) => setBuyPrice(text)}
-            />
-            <TextInput
-              style={styles.inputHalf}
-              placeholder="Rp0"
-              keyboardType="numeric"
-              value={sellPrice}
-              onChangeText={(text) => setSellPrice(text)}
-            />
+          <View style={{ flexDirection: "row", gap: 5 }}>
+            <View style={{ width: "49%" }}>
+              <Text style={styles.label}>Harga Beli</Text>
+              <TextInput
+                style={styles.inputHalf}
+                placeholder="Rp0"
+                keyboardType="numeric"
+                value={buyPrice}
+                onChangeText={(text) => setBuyPrice(text)}
+              />
+            </View>
+            
+            <View style={{ width: "49%" }}>
+            <Text style={styles.label}>Harga Jual</Text>
+              <TextInput
+                style={styles.inputHalf}
+                placeholder="Rp0"
+                keyboardType="numeric"
+                value={sellPrice}
+                onChangeText={(text) => setSellPrice(text)}
+              />
+            </View>
           </View>
 
           <Text style={styles.label}>Deskripsi Produk</Text>
@@ -232,6 +237,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f0f0",
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 10,
   },
   innerContainer: {
     width: "90%",
@@ -257,7 +263,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   inputHalf: {
-    width: "48%",
     height: 50,
     borderColor: "#ccc",
     borderWidth: 1,
@@ -284,19 +289,19 @@ const styles = StyleSheet.create({
     width: "48%",
     height: 50,
     borderWidth: 1,
-    borderColor: "#FF0000",
+    borderColor: "#ffa500",
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
   },
   buttonOutlineText: {
-    color: "#FF0000",
+    color: "#ffa500",
     fontWeight: "bold",
   },
   buttonFilled: {
     width: "48%",
     height: 50,
-    backgroundColor: "#FF0000",
+    backgroundColor: "#ffa500",
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
@@ -307,10 +312,11 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     height: 50,
-    backgroundColor: "#FF0000",
+    backgroundColor: "#ffa500",
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
+    marginBottom: 50,
   },
   saveButtonText: {
     fontSize: 16,

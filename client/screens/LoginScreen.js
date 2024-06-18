@@ -7,6 +7,8 @@ import {
   View,
   Button,
   Alert,
+  TouchableOpacity,
+  Image,
 } from "react-native";
 import { AuthContext } from "../contexts/AuthContext";
 import { gql, useMutation } from "@apollo/client";
@@ -55,7 +57,20 @@ export default function LoginScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
-        <Text style={styles.title}>WarungKu</Text>
+        <View style={{ marginBottom: 10 }}>
+          <Image
+            style={{
+              width: "100%",
+              height: 60,
+              alignSelf: "center",
+              resizeMode: "cover",
+            }}
+            source={{
+              uri: "https://cdn.discordapp.com/attachments/1249594817189515300/1250701503128272996/Logo.png?ex=6671d4cb&is=6670834b&hm=dd8af368dc8ff28d445b00537b74211da047046de4a01a8c56c1ff7739311bd4&",
+            }}
+          />
+          <Text style={{fontWeight:"bold", alignSelf: "center", fontSize:30}}>Masuk</Text>
+        </View>
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -67,20 +82,36 @@ export default function LoginScreen({ navigation }) {
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder="Kata sandi"
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
           value={password}
           onChangeText={(e) => setPassword(e)}
         />
-        <Button title="Login" onPress={handleSubmit} />
+        <TouchableOpacity
+          style={{ backgroundColor: "#ffa500", borderRadius: 5 }}
+          onPress={handleSubmit}
+        >
+          <Text
+            style={{
+              alignSelf: "center",
+              paddingBottom: 10,
+              paddingTop: 10,
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+          >
+            Masuk
+          </Text>
+        </TouchableOpacity>
+        {/* <Button title="Login" onPress={handleSubmit} /> */}
       </View>
 
-      <Text style={styles.register}>
-        Don't have an account?{" "}
+      <Text>
+        Belum punya akun?{" "}
         <Link style={styles.registerLink} to={{ screen: "RegisterScreen" }}>
-          Register
+          Daftar
         </Link>
       </Text>
     </SafeAreaView>
@@ -90,7 +121,7 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
   },
