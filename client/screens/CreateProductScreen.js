@@ -4,6 +4,7 @@ import { gql, useMutation } from "@apollo/client";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
 import {
   SafeAreaView,
   StyleSheet,
@@ -59,6 +60,7 @@ const CREATE_ITEM = gql`
 `;
 
 export default function CreateProductScreen({ navigation }) {
+  const [uploading, setUploading] = useState(false);
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -97,6 +99,67 @@ export default function CreateProductScreen({ navigation }) {
     }
   };
 
+  const galleryUpload = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.image,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      const data = new FormData();
+      data.append("file", {
+        uri: result.assets[0].uri,
+        type: "image/jpeg", // or your image type
+        name: "upload.jpg",
+      });
+      console.log(result.assets[0].uri, "<<< uri");
+      data.append("upload_preset", "qzas6lj1");
+      console.log(data, "<<< ini gitu");
+      try {
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/dwhlzqfjp/image/upload`,
+          {
+            method: "POST",
+            body: data,
+          }
+        );
+        const dataRes = await response.json();
+        // console.log(, "<<< response json");
+        setImageUrl(dataRes.secure_url);
+        // const imageUrl = response.data.secure_url;
+        // setImageUrl(imageUrl); // Save the URL in state
+        // setImage(result.uri); // Display the selected image on the UI
+        // alert("Image uploaded successfully!");
+      } catch (err) {
+        console.error("Error uploading image:", err);
+        console.log(err.message);
+        alert("Failed to upload image.");
+      } finally {
+        setUploading(false);
+      }
+    }
+  };
+
+  const cameraUpload = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.image,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
   // const uploadImage = async () => {
   //   try {
   //     await ImagePicker.requestCameraPermissionsAsync();
@@ -172,13 +235,13 @@ export default function CreateProductScreen({ navigation }) {
             onChangeText={(text) => setCategory(text)}
           />
 
-          <Text style={styles.label}>Image Url</Text>
+          {/* <Text style={styles.label}>Image Url</Text>
           <TextInput
             style={styles.input}
             placeholder="Image Url"
             value={imageUrl}
             onChangeText={(text) => setImageUrl(text)}
-          />
+          /> */}
 
           <Text style={styles.label}>Stok</Text>
           <View style={styles.priceInputContainer}>
@@ -192,26 +255,21 @@ export default function CreateProductScreen({ navigation }) {
           </View>
 
           <View style={styles.imageUploadContainer}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/150" }}
-              style={styles.imagePlaceholder}
-            />
+            {image && (
+              <Image source={{ uri: image }} style={styles.imagePlaceholder} />
+            )}
           </View>
 
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.buttonOutline}
-              onPress={() => {
-                console.log("Kamera");
-              }}
+              onPress={cameraUpload}
             >
               <Text style={styles.buttonOutlineText}>Kamera</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.buttonFilled}
-              onPress={() => {
-                /* Handle gallery upload */
-              }}
+              onPress={galleryUpload}
             >
               <Text style={styles.buttonFilledText}>Galeri</Text>
             </TouchableOpacity>
