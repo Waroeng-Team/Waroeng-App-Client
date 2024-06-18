@@ -25,43 +25,10 @@ export default function StoresScreen({ navigation }) {
     fetchPolicy: "no-cache",
   });
 
-  //dummy data stores
-  // const stores = [
-  //   {
-  //     id: "1",
-  //     name: "Gaming Store",
-  //     phoneNumber: "+123456789",
-  //     description: "for your gaming equipment",
-  //     address: "sesame street",
-  //   },
-  //   {
-  //     id: "2",
-  //     name: "Tech Gadgets",
-  //     phoneNumber: "+987654321",
-  //     description: "latest tech and gadgets",
-  //     address: "tech valley road",
-  //   },
-  //   {
-  //     id: "3",
-  //     name: "Book Haven",
-  //     phoneNumber: "+112233445",
-  //     description: "a paradise for book lovers",
-  //     address: "literature lane",
-  //   },
-  //   {
-  //     id: "4",
-  //     name: "Home Essentials",
-  //     phoneNumber: "+556677889",
-  //     description: "all your household needs",
-  //     address: "domestic drive",
-  //   },
-  // ];
-
   return (
     <>
       <ScrollView>
         <View style={styles.container}>
-          <Text style={{alignSelf:"center", fontSize: 25, fontWeight: "bold"}}>Warung Anda</Text>
           <View style={styles.productsContainer}>
             {data?.getAllStores.map((store, index) => {
               return (
@@ -78,13 +45,6 @@ export default function StoresScreen({ navigation }) {
           </View>
         </View>
       </ScrollView>
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate("ProductsScreen")}
-      >
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
     </>
   );
 }

@@ -148,37 +148,37 @@ export default function ReportScreen({ navigation }) {
   }
 
   const emojisWithIcons = [
-    { title: "Daily" },
-    { title: "Weekly" },
-    { title: "Monthly" },
-    { title: "Yearly" },
+    { title: "Harian" },
+    { title: "Mingguan" },
+    { title: "Bulanan" },
+    { title: "Tahunan" },
   ];
   const handleSeeReport = () => {
     switch (typeReport) {
       case "":
         return setErrorFetch(true);
-      case "Daily":
+      case "Harian":
         if (!reportDaily) {
           return setErrorFetch(true);
         }
         setReport(reportDaily.getReportByDay);
         setErrorFetch(false);
         break;
-      case "Weekly":
+      case "Mingguan":
         if (!reportWeekly) {
           return setErrorFetch(true);
         }
         setReport(reportWeekly.getReportByWeek);
         setErrorFetch(false);
         break;
-      case "Monthly":
+      case "Bulanan":
         if (!reportMonthly) {
           return setErrorFetch(true);
         }
         setReport(reportMonthly.getReportByMonth);
         setErrorFetch(false);
         break;
-      case "Yearly":
+      case "Tahunan":
         if (!reportYearly) {
           return setErrorFetch(true);
         }
@@ -203,12 +203,12 @@ export default function ReportScreen({ navigation }) {
     return (
       <>
         <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>Not yet select store</Text>
+          <Text style={styles.messageText}>Belum memilih warung</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
             onPress={() => navigation.navigate("StoresScreen")}
           >
-            <Text style={styles.chooseStoreButtonText}>Choose your store</Text>
+            <Text style={styles.chooseStoreButtonText}>Pilih warung</Text>
           </TouchableOpacity>
         </View>
       </>
@@ -248,9 +248,9 @@ export default function ReportScreen({ navigation }) {
                   borderBottomWidth: 2,
                 }}
               >
-                <Text>Transaction date</Text>
-                <Text>Income</Text>
-                <Text>Outcome</Text>
+                <Text>Tanggal transaksi</Text>
+                <Text>Pemasukan</Text>
+                <Text>Pengeluaran</Text>
               </View>
               {report?.transactionDetail.map((transaction, index) => {
                 let timestamp = +transaction.createdAt;
@@ -302,7 +302,7 @@ export default function ReportScreen({ navigation }) {
                 marginTop: 8,
               }}
             >
-              <Text style={{ fontWeight: "bold" }}>Profit:</Text>
+              <Text style={{ fontWeight: "bold" }}>Laba:</Text>
               <Text style={{ fontWeight: "bold" }}>
                 {new Intl.NumberFormat("id-ID", {
                   style: "currency",
@@ -313,7 +313,7 @@ export default function ReportScreen({ navigation }) {
             <View style={{ paddingLeft: 20, paddingRight: 20 }}>
               <TouchableOpacity
                 style={{
-                  backgroundColor: "#FFD700",
+                  backgroundColor: "#ffa500",
                   paddingVertical: 10,
                   paddingHorizontal: 20,
                   borderRadius: 5,
@@ -334,7 +334,7 @@ export default function ReportScreen({ navigation }) {
                     alignSelf: "center",
                   }}
                 >
-                  Back
+                  Kembali
                 </Text>
               </TouchableOpacity>
             </View>
@@ -345,7 +345,7 @@ export default function ReportScreen({ navigation }) {
           <Text style={styles.title}>{storeDetail?.getStoreById.name}</Text>
           <View style={{ marginTop: 30, width: "100%", alignItems: "center" }}>
             {errorFetch ? (
-              <Text style={{ color: "red" }}>No Transaction</Text>
+              <Text style={{ color: "red" }}>Tidak ada transaksi</Text>
             ) : (
               ""
             )}
@@ -353,7 +353,7 @@ export default function ReportScreen({ navigation }) {
               <Text
                 style={{ fontSize: 20, fontWeight: "bold", marginBottom: 5 }}
               >
-                Type:
+                Tipe:
               </Text>
               <SelectDropdown
                 data={emojisWithIcons}
@@ -364,7 +364,7 @@ export default function ReportScreen({ navigation }) {
                   return (
                     <View style={styles.dropdownButtonStyle}>
                       <Text style={styles.dropdownButtonTxtStyle}>
-                        {(selectedItem && selectedItem.title) || "Choose"}
+                        {(selectedItem && selectedItem.title) || "Pilih tipe"}
                       </Text>
                       <Icon
                         name={isOpened ? "chevron-up" : "chevron-down"}
@@ -392,10 +392,10 @@ export default function ReportScreen({ navigation }) {
               />
             </View>
             <View style={{ marginTop: 10 }}>
-              <Text style={{ fontSize: 20, fontWeight: "bold" }}>Date:</Text>
+              <Text style={{ fontSize: 20, fontWeight: "bold" }}>Tanggal:</Text>
               <TextInput
                 style={styles.input}
-                placeholder="MM-DD-YYYY"
+                placeholder="bulan-hari-tahun (cth: 06-18-2024)"
                 onChangeText={(e) => setDate(e)}
               />
             </View>
@@ -403,7 +403,7 @@ export default function ReportScreen({ navigation }) {
               style={styles.seeReportButton}
               onPress={handleSeeReport}
             >
-              <Text style={styles.seeReportButtonText}>See Report</Text>
+              <Text style={styles.seeReportButtonText}>Lihat Laporan</Text>
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   seeReportButton: {
-    backgroundColor: "#FFD700",
+    backgroundColor: "#ffa500",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -505,7 +505,7 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   chooseStoreButton: {
-    backgroundColor: "#FFD700",
+    backgroundColor: "#ffa500",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,

@@ -32,14 +32,14 @@ export default function DrawerNavigator() {
     return (
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
-        <DrawerItem label="Logout" onPress={handleLogout} />
+        <DrawerItem label="Keluar" onPress={handleLogout} />
       </DrawerContentScrollView>
     );
   }
 
   return (
     <Drawer.Navigator
-    // initialRouteName={}
+      // initialRouteName={}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       {/* <Drawer.Screen name="Dashboard" component={}/> */}
@@ -48,9 +48,17 @@ export default function DrawerNavigator() {
         options={{ title: "Products" }}
         component={ProductsScreen}
       />
-      <Drawer.Screen name="CreateStore" component={CreateStoreScreen} />
-      <Drawer.Screen name="StoresScreen" component={StoresScreen} />
-      <Drawer.Screen name="ReportScreen" component={ReportScreen} />
+      <Drawer.Screen name="CreateStore" component={CreateStoreScreen} options={{title: "Daftarkan warung"}} />
+      <Drawer.Screen
+        name="StoresScreen"
+        component={StoresScreen}
+        options={{ title: "WarungKu" }}
+      />
+      <Drawer.Screen
+        name="ReportScreen"
+        component={ReportScreen}
+        options={{ title: "Laporan" }}
+      />
     </Drawer.Navigator>
   );
 }
