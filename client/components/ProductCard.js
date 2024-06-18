@@ -23,7 +23,10 @@ export default function ProductCard({
       <Image source={{ uri: imageUrl }} style={styles.productImage} />
       <View style={styles.cardContent}>
         <Text style={styles.productName}>{name}</Text>
-        <Text style={styles.productPrice}>Rp {sellPrice}</Text>
+        <Text style={styles.productPrice}>{new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                          }).format(sellPrice)}</Text>
         <Text style={styles.productStock}>Stock: {stock}</Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity
@@ -150,6 +153,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
+    alignSelf: "center"
   },
   disabledButton: {
     backgroundColor: "#ccc",

@@ -1,4 +1,5 @@
 import { gql, useMutation } from "@apollo/client";
+import { Link } from "@react-navigation/native";
 import { useState } from "react";
 import {
   SafeAreaView,
@@ -8,6 +9,8 @@ import {
   View,
   Button,
   Alert,
+  Image,
+  TouchableOpacity,
 } from "react-native";
 
 const REGISTER = gql`
@@ -43,8 +46,29 @@ export default function RegisterScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.innerContainer}>
-        <Text style={styles.title}>WarungKu</Text>
-        <Text style={styles.subtitle}>Enter your email and password</Text>
+        <View>
+          <Image
+            style={{
+              width: "100%",
+              height: 60,
+              alignSelf: "center",
+              resizeMode: "cover",
+            }}
+            source={{
+              uri: "https://cdn.discordapp.com/attachments/1249594817189515300/1250701503128272996/Logo.png?ex=6671d4cb&is=6670834b&hm=dd8af368dc8ff28d445b00537b74211da047046de4a01a8c56c1ff7739311bd4&",
+            }}
+          />
+        </View>
+        <Text
+          style={{
+            fontWeight: "bold",
+            alignSelf: "center",
+            fontSize: 30,
+            marginBottom: 10,
+          }}
+        >
+          Daftar
+        </Text>
         <TextInput
           style={styles.input}
           placeholder="Username"
@@ -62,14 +86,40 @@ export default function RegisterScreen({ navigation }) {
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder="Kata Sandi"
           secureTextEntry
           autoCapitalize="none"
           autoCorrect={false}
           onChangeText={(text) => setPassword(text)}
         />
-        <Button title="Sign Up" onPress={handleSubmit} />
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#ffa500",
+            borderRadius: 5,
+            marginBottom: 10,
+          }}
+          onPress={handleSubmit}
+        >
+          <Text
+            style={{
+              alignSelf: "center",
+              paddingBottom: 10,
+              paddingTop: 10,
+              fontWeight: "bold",
+              fontSize: 20,
+            }}
+          >
+            Daftar
+          </Text>
+        </TouchableOpacity>
+        {/* <Button title="Sign Up" onPress={handleSubmit} /> */}
       </View>
+      <Text>
+        Sudah punya akun?{" "}
+        <Link style={styles.loginLink} to={{ screen: "LoginScreen" }}>
+          Masuk
+        </Link>
+      </Text>
     </SafeAreaView>
   );
 }
@@ -77,7 +127,7 @@ export default function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -103,5 +153,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
     backgroundColor: "#fff",
+  },
+  loginLink: {
+    color: "blue",
+    textDecorationLine: "underline",
   },
 });
