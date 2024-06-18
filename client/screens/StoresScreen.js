@@ -61,7 +61,7 @@ export default function StoresScreen({ navigation }) {
     <>
       <ScrollView>
         <View style={styles.container}>
-          <Text style={styles.title}>Warung Anda</Text>
+          <Text style={{alignSelf:"center", fontSize: 25, fontWeight: "bold"}}>Warung Anda</Text>
           <View style={styles.productsContainer}>
             {data?.getAllStores.map((store, index) => {
               return (
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 50,
+    paddingTop: 10,
   },
   card: {
     backgroundColor: "#f1f9ff",
