@@ -1,5 +1,17 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  Button,
+} from "react-native";
+import QRCode from "react-native-qrcode-svg";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 export default function ProductCard({
   product,
@@ -7,8 +19,10 @@ export default function ProductCard({
   handleReduceBuy,
   isCancel,
 }) {
-  const { name, sellPrice, stock, imageUrl } = product;
+  const { name, sellPrice, stock, barcode, imageUrl } = product;
   const [amount, setAmount] = useState(0);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [qrCodeSvg, setQrCodeSvg] = useState(null);
 
   useEffect(() => {
     if (isCancel) {
@@ -17,6 +31,25 @@ export default function ProductCard({
   }, [isCancel]);
 
   const disabled = stock <= 0 || amount === stock;
+
+  const saveQrCode = async () => {
+    try {
+      if (!qrCodeSvg) {
+        Alert.alert("Error", "QR Code data is not available.");
+        return;
+      }
+
+      const uri = FileSystem.cacheDirectory + "qrcode.png";
+      await FileSystem.writeAsStringAsync(uri, qrCodeSvg, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      await Sharing.shareAsync(uri);
+    } catch (error) {
+      console.error("Error saving/sharing QR Code: ", error);
+      Alert.alert("Error", "Failed to save/share QR Code.");
+    }
+  };
 
   return (
     <View style={styles.card}>
@@ -33,7 +66,35 @@ export default function ProductCard({
             }}>
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.newButton}
+            onPress={() => setModalVisible(true)}>
+            <Text style={styles.newButtonText}>Buat barcode</Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Modal for QR code */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <QRCode
+                value={barcode || product._id}
+                getRef={(c) => setQrCodeSvg(c)}
+              />
+              <TouchableOpacity
+                style={styles.downloadButton}
+                onPress={saveQrCode}>
+                <Text style={styles.downloadButtonText}>Download QR Code</Text>
+              </TouchableOpacity>
+              <Button title="Close" onPress={() => setModalVisible(false)} />
+            </View>
+          </View>
+        </Modal>
+
         {amount === 0 || isCancel ? (
           <TouchableOpacity
             style={[styles.addButton, disabled && styles.disabledButton]}
@@ -42,7 +103,7 @@ export default function ProductCard({
               setAmount(1);
               handleBuy(product);
             }}>
-            <Text style={styles.addButtonText}>Tambah</Text>
+            <Text style={styles.addButtonText}>Beli</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.amountRow}>
@@ -72,12 +133,6 @@ export default function ProductCard({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-  },
   card: {
     flexDirection: "row",
     alignItems: "center",
@@ -118,16 +173,45 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   editButton: {
-    backgroundColor: "#81d4fa",
+    backgroundColor: "#2196f3",
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   editButtonText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  newButton: {
+    backgroundColor: "#ff9800",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  newButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
   },
   productImage: {
     width: 100,
@@ -138,6 +222,7 @@ const styles = StyleSheet.create({
   amountRow: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 10,
   },
   addButton: {
     backgroundColor: "#81c784",
@@ -145,6 +230,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   addButtonText: {
     color: "#fff",
@@ -160,6 +248,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   removeButtonText: {
     color: "#fff",
@@ -170,5 +261,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginHorizontal: 10,
+  },
+  downloadButton: {
+    backgroundColor: "#4caf50",
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  downloadButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

@@ -6,6 +6,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from "@react-navigation/native";
+import { BarCodeScanner } from "expo-barcode-scanner";
 
 export const GET_ALL_ITEMS = gql`
   query GetAllItems($storeId: ID!) {
@@ -167,6 +168,7 @@ export default function ProductsScreen({ navigation }) {
       console.log("🚀 ~ handleBuyTransaction ~ result:", result);
       setIsCancel(true);
       setIsBuy(false);
+      refetch();
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -190,8 +192,7 @@ export default function ProductsScreen({ navigation }) {
           <Text style={styles.messageText}>No items</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
-            onPress={() => navigation.navigate("StoresScreen")}
-          >
+            onPress={() => navigation.navigate("StoresScreen")}>
             <Text style={styles.chooseStoreButtonText}>Choose your store</Text>
           </TouchableOpacity>
         </View>
@@ -208,6 +209,7 @@ export default function ProductsScreen({ navigation }) {
                     handleReduceBuy={handleReduceBuy}
                     setBought={setBought}
                     isCancel={isCancel}
+                    refetch={refetch}
                     product={product}
                   />
                 );
@@ -228,19 +230,16 @@ export default function ProductsScreen({ navigation }) {
               margin: 8,
               borderColor: "grey",
               borderWidth: 1,
-            }}
-          >
+            }}>
             <View
-              style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}
-            >
+              style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}>
               <Text style={{ fontSize: 30, fontWeight: "bold" }}>Total</Text>
               <Text style={{ fontSize: 25, fontWeight: "bold" }}>
                 Rp {totalPrice}
               </Text>
             </View>
             <View
-              style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}
-            >
+              style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}>
               <TouchableOpacity
                 style={{
                   backgroundColor: "#FFD700",
@@ -250,15 +249,13 @@ export default function ProductsScreen({ navigation }) {
                   paddingRight: 20,
                   borderRadius: 10,
                 }}
-                onPress={handleBuyTransaction}
-              >
+                onPress={handleBuyTransaction}>
                 <Text
                   style={{
                     fontWeight: "bold",
                     fontSize: 20,
                     alignSelf: "center",
-                  }}
-                >
+                  }}>
                   Buy
                 </Text>
               </TouchableOpacity>
@@ -272,11 +269,9 @@ export default function ProductsScreen({ navigation }) {
                   paddingRight: 20,
                   borderRadius: 10,
                 }}
-                onPress={handleCancelBuy}
-              >
+                onPress={handleCancelBuy}>
                 <Text
-                  style={{ color: "red", fontWeight: "bold", fontSize: 20 }}
-                >
+                  style={{ color: "red", fontWeight: "bold", fontSize: 20 }}>
                   Cancel
                 </Text>
               </TouchableOpacity>
@@ -288,8 +283,7 @@ export default function ProductsScreen({ navigation }) {
           style={styles.addButton}
           onPress={() =>
             navigation.navigate("CreateProductScreen", { storeId })
-          }
-        >
+          }>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       )}
