@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import {
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -25,7 +26,10 @@ export const GET_DAILY_REPORT = gql`
         _id
         items {
           itemId
+          name
           quantity
+          buyPrice
+          sellPrice
         }
         type
         total
@@ -46,7 +50,10 @@ export const GET_WEEKLY_REPORT = gql`
         _id
         items {
           itemId
+          name
           quantity
+          buyPrice
+          sellPrice
         }
         type
         total
@@ -67,7 +74,10 @@ export const GET_MONTHLY_REPORT = gql`
         _id
         items {
           itemId
+          name
           quantity
+          buyPrice
+          sellPrice
         }
         type
         total
@@ -88,7 +98,10 @@ export const GET_YEARLY_REPORT = gql`
         _id
         items {
           itemId
+          name
           quantity
+          buyPrice
+          sellPrice
         }
         type
         total
@@ -103,6 +116,7 @@ export default function ReportScreen({ navigation }) {
   const [typeReport, setTypeReport] = useState("");
   const [date, setDate] = useState("");
   const [report, setReport] = useState({});
+  console.log(report)
   const [errorFetch, setErrorFetch] = useState(false);
   const { data: storeDetail, refetch: refetchStoreDetail } = useQuery(
     GET_STORE_BY_ID,
@@ -203,125 +217,129 @@ export default function ReportScreen({ navigation }) {
   return (
     <>
       {report?._id ? (
-        <View style={{ flex: 1, marginTop: 20 }}>
-          <Text
-            style={{
-              fontSize: 24,
-              fontWeight: "bold",
-              alignSelf: "center",
-              marginBottom: 20,
-            }}
-          >
-            {storeDetail?.getStoreById.name}
-          </Text>
+        <ScrollView>
+          <View style={{ flex: 1, marginTop: 20 }}>
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: "bold",
+                alignSelf: "center",
+                marginBottom: 20,
+              }}
+            >
+              {storeDetail?.getStoreById.name}
+            </Text>
 
-          <View
-            style={{
-              borderTopWidth: 2,
-              marginRight: 5,
-              marginLeft: 5,
-            }}
-          >
+            <View
+              style={{
+                borderTopWidth: 2,
+                marginRight: 5,
+                marginLeft: 5,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  paddingLeft: 5,
+                  paddingRight: 5,
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  borderBottomWidth: 2,
+                }}
+              >
+                <Text>Transaction date</Text>
+                <Text>Income</Text>
+                <Text>Outcome</Text>
+              </View>
+              {report?.transactionDetail.map((transaction, index) => {
+                let timestamp = +transaction.createdAt;
+                let date = `${new Date(timestamp)}`;
+                date = date.split(" ");
+                let convertDate = [date[2], date[1], date[3]];
+                convertDate = convertDate.join("-");
+                // console.log(transaction)
+                return (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      paddingLeft: 5,
+                      paddingRight: 5,
+                      paddingTop: 5,
+                      paddingBottom: 5,
+                      borderBottomWidth: 1,
+                    }}
+                    key={index}
+                  >
+                    <Text>{convertDate}</Text>
+                    <Text style={{ color: "green" }}>
+                      {transaction.type == "income"
+                        ? new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                          }).format(transaction.total)
+                        : "Rp 0"}
+                    </Text>
+                    <Text style={{ color: "red" }}>
+                      {transaction.type == "outcome"
+                        ? new Intl.NumberFormat("id-ID", {
+                            style: "currency",
+                            currency: "IDR",
+                          }).format(transaction.total)
+                        : "Rp 0"}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
             <View
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
-                paddingLeft: 5,
-                paddingRight: 5,
-                paddingTop: 5,
-                paddingBottom: 5,
-                borderBottomWidth: 2,
+                marginLeft: 5,
+                marginRight: 5,
+                marginTop: 8,
               }}
             >
-              <Text>Transaction date</Text>
-              <Text>Income</Text>
-              <Text>Outcome</Text>
+              <Text style={{ fontWeight: "bold" }}>Profit:</Text>
+              <Text style={{ fontWeight: "bold" }}>
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                }).format(report.profit)}
+              </Text>
             </View>
-            {report?.transactionDetail.map((transaction, index) => {
-              let timestamp = +transaction.createdAt;
-              let date = `${new Date(timestamp)}`;
-              date = date.split(" ");
-              let convertDate = [date[2], date[1], date[3]];
-              convertDate = convertDate.join("-");
-              return (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    paddingLeft: 5,
-                    paddingRight: 5,
-                    paddingTop: 5,
-                    paddingBottom: 5,
-                    borderBottomWidth: 1,
-                  }}
-                  key={index}
-                >
-                  <Text>{convertDate}</Text>
-                  <Text style={{ color: "green" }}>
-                    {transaction.type == "income"
-                      ? new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                        }).format(transaction.total)
-                      : "Rp 0"}
-                  </Text>
-                  <Text style={{ color: "red" }}>
-                    {transaction.type == "outcome"
-                      ? new Intl.NumberFormat("id-ID", {
-                          style: "currency",
-                          currency: "IDR",
-                        }).format(transaction.total)
-                      : "Rp 0"}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginLeft: 5,
-              marginRight: 5,
-              marginTop: 8,
-            }}
-          >
-            <Text style={{ fontWeight: "bold" }}>Profit:</Text>
-            <Text style={{ fontWeight: "bold" }}>
-              {new Intl.NumberFormat("id-ID", {
-                style: "currency",
-                currency: "IDR",
-              }).format(report.profit)}
-            </Text>
-          </View>
-          <View style={{ paddingLeft: 20, paddingRight: 20 }}>
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#FFD700",
-                paddingVertical: 10,
-                paddingHorizontal: 20,
-                borderRadius: 5,
-                marginTop: 10,
-              }}
-              onPress={() => {
-                setReport({});
-                setDate("");
-                setTypeReport("");
-              }}
-            >
-              <Text
+            <View style={{ paddingLeft: 20, paddingRight: 20 }}>
+              <TouchableOpacity
                 style={{
-                  fontSize: 16,
-                  color: "#000",
-                  fontWeight: "bold",
-                  alignSelf: "center",
+                  backgroundColor: "#FFD700",
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  borderRadius: 5,
+                  marginTop: 10,
+                  marginBottom: 15,
+                }}
+                onPress={() => {
+                  setReport({});
+                  setDate("");
+                  setTypeReport("");
                 }}
               >
-                Back
-              </Text>
-            </TouchableOpacity>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: "#000",
+                    fontWeight: "bold",
+                    alignSelf: "center",
+                  }}
+                >
+                  Back
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        </ScrollView>
       ) : (
         <SafeAreaView style={styles.container}>
           <Text style={styles.title}>{storeDetail?.getStoreById.name}</Text>

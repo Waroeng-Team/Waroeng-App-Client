@@ -39,6 +39,7 @@ export default function DrawerNavigator() {
 
   return (
     <Drawer.Navigator
+    // initialRouteName={}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       {/* <Drawer.Screen name="Dashboard" component={}/> */}
