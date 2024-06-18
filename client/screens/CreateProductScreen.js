@@ -1,10 +1,9 @@
 "use client";
 
 import { gql, useMutation } from "@apollo/client";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useRoute } from "@react-navigation/native";
+import { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import axios from "axios";
 import {
   SafeAreaView,
   StyleSheet,

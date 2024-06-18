@@ -12,6 +12,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import StoresScreen from "../screens/StoresScreen";
 import ReportScreen from "../screens/ReportScreen";
+import TransactionScreen from "../screens/TransactionScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -58,6 +59,11 @@ export default function DrawerNavigator() {
         name="ReportScreen"
         component={ReportScreen}
         options={{ title: "Laporan" }}
+      />
+      <Drawer.Screen
+        name="TransactionScreen"
+        component={TransactionScreen}
+        options={{ title: "Daftar Transaksi" }}
       />
     </Drawer.Navigator>
   );
