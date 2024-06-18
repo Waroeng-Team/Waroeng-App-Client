@@ -1,4 +1,4 @@
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import {
   DrawerContentScrollView,
   DrawerItem,
@@ -12,6 +12,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import StoresScreen from "../screens/StoresScreen";
 import ReportScreen from "../screens/ReportScreen";
+import TransactionScreen from "../screens/TransactionScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -32,14 +33,14 @@ export default function DrawerNavigator() {
     return (
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
-        <DrawerItem label="Logout" onPress={handleLogout} />
+        <DrawerItem label="Keluar" onPress={handleLogout} />
       </DrawerContentScrollView>
     );
   }
 
   return (
     <Drawer.Navigator
-    // initialRouteName={}
+      // initialRouteName={}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       {/* <Drawer.Screen name="Dashboard" component={}/> */}
@@ -48,9 +49,26 @@ export default function DrawerNavigator() {
         options={{ title: "Products" }}
         component={ProductsScreen}
       />
-      <Drawer.Screen name="CreateStore" component={CreateStoreScreen} />
-      <Drawer.Screen name="StoresScreen" component={StoresScreen} />
-      <Drawer.Screen name="ReportScreen" component={ReportScreen} />
+      <Drawer.Screen
+        name="CreateStore"
+        component={CreateStoreScreen}
+        options={{ title: "Daftarkan warung" }}
+      />
+      <Drawer.Screen
+        name="StoresScreen"
+        component={StoresScreen}
+        options={{ title: "WarungKu" }}
+      />
+      <Drawer.Screen
+        name="ReportScreen"
+        component={ReportScreen}
+        options={{ title: "Laporan" }}
+      />
+      <Drawer.Screen
+        name="TransactionScreen"
+        component={TransactionScreen}
+        options={{ title: "Daftar Transaksi" }}
+      />
     </Drawer.Navigator>
   );
 }

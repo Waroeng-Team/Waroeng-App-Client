@@ -21,7 +21,7 @@ const StoreCard = ({ name, address, storeId }) => {
       <Text style={styles.storeName}>{name}</Text>
       <Text style={styles.address}>{address}</Text>
       <TouchableOpacity style={styles.button} onPress={handleOnChooseStore}>
-        <Text style={styles.buttonText}>Choose this store</Text>
+        <Text style={styles.buttonText}>Pilih warung ini </Text>
       </TouchableOpacity>
     </View>
   );
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   card: {
-    backgroundColor: "#f1f9ff",
+    backgroundColor: "#ffe4b3",
     padding: 20,
     marginVertical: 10,
     marginHorizontal: 20,
@@ -50,14 +50,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: "#b3e5fc",
+    backgroundColor: "#ffa500",
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
   },
   buttonText: {
     fontSize: 14,
-    color: "#007AFF",
+    color: "#664200",
     textAlign: "center",
   },
 });

@@ -9,8 +9,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 
 export const GET_ALL_ITEMS = gql`
-  query GetAllItems($storeId: ID!) {
-    getAllItems(storeId: $storeId) {
+  query GetAllItems($storeId: ID!, $search: String) {
+    getAllItems(storeId: $storeId, search: $search) {
       _id
       name
       category
@@ -57,11 +57,13 @@ export default function ProductsScreen({ navigation }) {
   const [isBuy, setIsBuy] = useState(false);
   const [isCancel, setIsCancel] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [addTransaction, { loading: addTransactionLoading }] =
-    useMutation(ADD_TRANSACTION);
+  const [addTransaction, { loading: addTransactionLoading }] = useMutation(
+    ADD_TRANSACTION,
+    { refetchQueries: [GET_ALL_ITEMS] }
+  );
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
-    variables: { storeId },
+    variables: { storeId,search: searchQuery },
     fetchPolicy: "no-cache",
   });
 
@@ -189,11 +191,11 @@ export default function ProductsScreen({ navigation }) {
     <>
       {data?.getAllItems.length == 0 || !data ? (
         <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>No items</Text>
+          <Text style={styles.messageText}>Tidak ada produk</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
             onPress={() => navigation.navigate("StoresScreen")}>
-            <Text style={styles.chooseStoreButtonText}>Choose your store</Text>
+            <Text style={styles.chooseStoreButtonText}>Pilih warung</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -234,15 +236,20 @@ export default function ProductsScreen({ navigation }) {
             <View
               style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}>
               <Text style={{ fontSize: 30, fontWeight: "bold" }}>Total</Text>
-              <Text style={{ fontSize: 25, fontWeight: "bold" }}>
-                Rp {totalPrice}
+              <Text
+                style={{ fontSize: 25, fontWeight: "bold", color: "green" }}
+              >
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                }).format(totalPrice)}
               </Text>
             </View>
             <View
               style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}>
               <TouchableOpacity
                 style={{
-                  backgroundColor: "#FFD700",
+                  backgroundColor: "#ffa500",
                   paddingTop: 5,
                   paddingBottom: 5,
                   paddingLeft: 20,
@@ -256,7 +263,7 @@ export default function ProductsScreen({ navigation }) {
                     fontSize: 20,
                     alignSelf: "center",
                   }}>
-                  Buy
+                  Beli
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -272,7 +279,7 @@ export default function ProductsScreen({ navigation }) {
                 onPress={handleCancelBuy}>
                 <Text
                   style={{ color: "red", fontWeight: "bold", fontSize: 20 }}>
-                  Cancel
+                  Batal
                 </Text>
               </TouchableOpacity>
             </View>
@@ -340,7 +347,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#ff5252",
+    backgroundColor: "#ffa500",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -359,7 +366,7 @@ const styles = StyleSheet.create({
     color: "#888",
   },
   chooseStoreButton: {
-    backgroundColor: "#FFD700",
+    backgroundColor: "#ffa500",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
