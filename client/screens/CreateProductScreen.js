@@ -1,6 +1,6 @@
 "use client";
 
-import { gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
@@ -58,7 +58,7 @@ const CREATE_ITEM = gql`
   }
 `;
 
-export default function CreateProductScreen() {
+export default function CreateProductScreen({ navigation }) {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
@@ -90,40 +90,41 @@ export default function CreateProductScreen() {
       });
       console.log("Item created:", response.data.createItem);
       alert("Product successfully created!");
+      navigation.navigate("ProductsScreen");
     } catch (err) {
       console.error("Error creating product:", err);
       alert("Failed to create product.");
     }
   };
 
-  const uploadImage = async () => {
-    try {
-      await ImagePicker.requestCameraPermissionsAsync();
-      let result = await ImagePicker.launchCameraAsync({
-        cameraType: ImagePicker.cameraType.front,
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 1,
-      });
+  // const uploadImage = async () => {
+  //   try {
+  //     await ImagePicker.requestCameraPermissionsAsync();
+  //     let result = await ImagePicker.launchCameraAsync({
+  //       cameraType: ImagePicker.cameraType.front,
+  //       allowsEditing: true,
+  //       aspect: [1, 1],
+  //       quality: 1,
+  //     });
 
-      if (!result.canceled) {
-        //save image
-        await saveImage(result.assets[0].uri);
-      }
-    } catch (error) {
-      console.log(error);
-      alert("Error uploading image");
-    }
-  };
+  //     if (!result.canceled) {
+  //       //save image
+  //       await saveImage(result.assets[0].uri);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert("Error uploading image");
+  //   }
+  // };
 
-  const saveImage = async (image) => {
-    try {
-      //update displayed image
-      setImage(image);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const saveImage = async (image) => {
+  //   try {
+  //     //update displayed image
+  //     setImage(image);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaView style={styles.container}>
@@ -175,9 +176,20 @@ export default function CreateProductScreen() {
           <TextInput
             style={styles.input}
             placeholder="Image Url"
-            value={category}
+            value={imageUrl}
             onChangeText={(text) => setImageUrl(text)}
           />
+
+          <Text style={styles.label}>Stok</Text>
+          <View style={styles.priceInputContainer}>
+            <TextInput
+              style={styles.inputHalf}
+              placeholder="Stok"
+              keyboardType="numeric"
+              value={stock}
+              onChangeText={(text) => setStock(text)}
+            />
+          </View>
 
           <View style={styles.imageUploadContainer}>
             <Image
@@ -189,7 +201,9 @@ export default function CreateProductScreen() {
           <View style={styles.buttonRow}>
             <TouchableOpacity
               style={styles.buttonOutline}
-              onPress={uploadImage}
+              onPress={() => {
+                console.log("Kamera");
+              }}
             >
               <Text style={styles.buttonOutlineText}>Kamera</Text>
             </TouchableOpacity>

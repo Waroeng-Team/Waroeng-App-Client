@@ -2,7 +2,7 @@
 
 # dependencies
 node_modules/
-
+config/apollo.js
 .env
 
 # Expo
