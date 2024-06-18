@@ -24,27 +24,40 @@ export default function StoresScreen({ navigation }) {
   const { loading, error, data } = useQuery(GET_STORES, {
     fetchPolicy: "no-cache",
   });
-
   return (
     <>
-      <ScrollView>
-        <View style={styles.container}>
-          <View style={styles.productsContainer}>
-            {data?.getAllStores.map((store, index) => {
-              return (
-                <StoreCard
-                  key={index}
-                  name={store.name}
-                  phoneNumber={store.phoneNumber}
-                  description={store.description}
-                  address={store.address}
-                  storeId={store._id}
-                />
-              );
-            })}
+      {data?.getAllStores.length == 0 ? (
+        <>
+          <View style={styles.messageContainer}>
+            <Text style={styles.messageText}>Tidak ada warung</Text>
+            <TouchableOpacity
+              style={styles.createStoreButton}
+              onPress={() => navigation.navigate("CreateStore")}
+            >
+              <Text style={styles.createStoreButtonText}>Daftar warung</Text>
+            </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
+        </>
+      ) : (
+        <ScrollView>
+          <View style={styles.container}>
+            <View style={styles.productsContainer}>
+              {data?.getAllStores.map((store, index) => {
+                return (
+                  <StoreCard
+                    key={index}
+                    name={store.name}
+                    phoneNumber={store.phoneNumber}
+                    description={store.description}
+                    address={store.address}
+                    storeId={store._id}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        </ScrollView>
+      )}
     </>
   );
 }
@@ -82,5 +95,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#007AFF",
     textAlign: "center",
+  },
+  messageContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  messageText: {
+    fontSize: 18,
+    color: "#888",
+  },
+  createStoreButton: {
+    backgroundColor: "#ffa500",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  createStoreButtonText: {
+    fontSize: 16,
+    color: "#000",
+    fontWeight: "bold",
   },
 });

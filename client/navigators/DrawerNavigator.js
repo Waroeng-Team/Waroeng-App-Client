@@ -1,4 +1,4 @@
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import {
   DrawerContentScrollView,
   DrawerItem,
@@ -48,7 +48,11 @@ export default function DrawerNavigator() {
         options={{ title: "Products" }}
         component={ProductsScreen}
       />
-      <Drawer.Screen name="CreateStore" component={CreateStoreScreen} options={{title: "Daftarkan warung"}} />
+      <Drawer.Screen
+        name="CreateStore"
+        component={CreateStoreScreen}
+        options={{ title: "Daftarkan warung" }}
+      />
       <Drawer.Screen
         name="StoresScreen"
         component={StoresScreen}

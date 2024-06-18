@@ -57,33 +57,38 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator>
             {isSignedIn ? (
-              isNewAccount ? (
-                <>
-                  <Stack.Screen
-                    name="CreateStoreScreen"
-                    component={CreateStoreScreen}
-                    options={{ title: "Create Store" }}
-                  />
-                  <Stack.Screen
-                    name="DrawerNavigator"
-                    component={DrawerNavigator}
-                    options={{ headerShown: false }}
-                  />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen
-                    name="DrawerNavigator"
-                    component={DrawerNavigator}
-                    options={{ headerShown: false }}
-                  />
-                  <Stack.Screen
-                    name="CreateProductScreen"
-                    component={CreateProductScreen}
-                    options={{ title: "Tambah produk baru" }}
-                  />
-                </>
-              )
+              // isNewAccount ? (
+              //   <>
+              //     <Stack.Screen
+              //       name="CreateStoreScreen"
+              //       component={CreateStoreScreen}
+              //       options={{ title: "Create Store" }}
+              //     />
+              //     <Stack.Screen
+              //       name="DrawerNavigator"
+              //       component={DrawerNavigator}
+              //       options={{ headerShown: false }}
+              //     />
+              //   </>
+              // ) : (
+              //   <>
+              //     <Stack.Screen
+              //       name="DrawerNavigator"
+              //       component={DrawerNavigator}
+              //       options={{ headerShown: false }}
+              //     />
+              //     <Stack.Screen
+              //       name="CreateProductScreen"
+              //       component={CreateProductScreen}
+              //       options={{ title: "Tambah produk baru" }}
+              //     />
+              //   </>
+              // )
+              <Stack.Screen
+                name="DrawerNavigator"
+                component={DrawerNavigator}
+                options={{ headerShown: false }}
+              />
             ) : (
               <>
                 <Stack.Screen
