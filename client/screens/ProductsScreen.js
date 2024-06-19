@@ -1,12 +1,19 @@
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import ProductCard from "../components/ProductCard";
-import { useState, useLayoutEffect, useEffect, useCallback } from "react";
-import SearchBar from "../components/SearchBar";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Button,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from "@react-navigation/native";
-import { BarCodeScanner } from "expo-barcode-scanner";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import ProductCard from "../components/ProductCard";
+import SearchBar from "../components/SearchBar";
 
 export const GET_ALL_ITEMS = gql`
   query GetAllItems($storeId: ID!, $search: String) {
@@ -27,7 +34,7 @@ export const GET_ALL_ITEMS = gql`
 `;
 
 export const GET_STORE_BY_ID = gql`
-  query GetStoreById($id: ID) {
+  query GetStoreById($id: ID!) {
     getStoreById(_id: $id) {
       _id
       name
@@ -36,8 +43,8 @@ export const GET_STORE_BY_ID = gql`
 `;
 
 export const ADD_TRANSACTION = gql`
-  mutation Addtransaction($type: String, $items: [ItemInput], $storeId: ID) {
-    addtransaction(type: $type, items: $items, storeId: $storeId) {
+  mutation AddTransaction($type: String, $items: [ItemInput], $storeId: ID) {
+    addTransaction(type: $type, items: $items, storeId: $storeId) {
       _id
       type
       items {
@@ -50,61 +57,109 @@ export const ADD_TRANSACTION = gql`
     }
   }
 `;
-export default function ProductsScreen({ navigation }) {
+
+export const GET_ITEM_BY_ID = gql`
+  query GetItemById($storeId: ID!, $productId: ID!) {
+    getItemById(storeId: $storeId, productId: $productId) {
+      _id
+      name
+      imageUrl
+      description
+      category
+      stock
+      buyPrice
+      sellPrice
+      createdAt
+      storeId
+      barcode
+    }
+  }
+`;
+
+const ProductsScreen = ({ navigation }) => {
   const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [bought, setBought] = useState([]);
   const [isBuy, setIsBuy] = useState(false);
   const [isCancel, setIsCancel] = useState(false);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [scanning, setScanning] = useState(false);
+  const [scanned, setScanned] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
+
   const [addTransaction, { loading: addTransactionLoading }] = useMutation(
     ADD_TRANSACTION,
-    { refetchQueries: [GET_ALL_ITEMS] }
+    {
+      refetchQueries: [
+        { query: GET_ALL_ITEMS, variables: { storeId, search: searchQuery } },
+      ],
+    }
   );
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
-    variables: { storeId,search: searchQuery },
-    fetchPolicy: "no-cache",
+    variables: { storeId, search: searchQuery },
+    fetchPolicy: "network-only",
+    skip: !storeId,
+  });
+
+  const {
+    loading: productLoading,
+    data: productData,
+    refetch: productRefetch,
+    error: productError,
+  } = useQuery(GET_ITEM_BY_ID, {
+    variables: { storeId, productId: "628555952566420000000001" },
+    fetchPolicy: "network-only",
+    skip: !storeId,
   });
 
   const { data: storeDetail, refetch: refetchStoreDetail } = useQuery(
     GET_STORE_BY_ID,
     {
       variables: { id: storeId },
-      fetchPolicy: "no-cache",
+      fetchPolicy: "network-only",
+      skip: !storeId,
     }
   );
 
-  async function getStoreId() {
-    let storeId = await SecureStore.getItemAsync("storeId");
-    setStoreId(storeId);
-  }
+  useFocusEffect(
+    useCallback(() => {
+      getStoreId();
+    }, [])
+  );
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerTitle: () => (
-        <SearchBar value={searchQuery} onChangeText={setSearchQuery} />
-      ),
-    });
-  }, [navigation, searchQuery]);
+  const getStoreId = async () => {
+    try {
+      const storedId = await SecureStore.getItemAsync("storeId");
+      if (storedId) {
+        setStoreId(storedId);
+        refetch();
+        refetchStoreDetail();
+      } else {
+        navigation.navigate("StoresScreen");
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to get Store ID.");
+    }
+  };
 
-  const handleBuy = (item) => {
+  const handleBuy = (item, quantity = 1) => {
     setIsBuy(true);
     setIsCancel(false);
-    let itemIsBought = bought.find(
+    const itemIsBought = bought.find(
       (boughtItem) => boughtItem.itemId === item._id
     );
 
     if (!itemIsBought) {
       setBought([
         ...bought,
-        { itemId: item._id, quantity: 1, price: item.sellPrice },
+        { itemId: item._id, quantity, price: item.sellPrice },
       ]);
     } else {
       setBought(
         bought.map((boughtItem) =>
           boughtItem.itemId === item._id
-            ? { ...boughtItem, quantity: boughtItem.quantity + 1 }
+            ? { ...boughtItem, quantity: boughtItem.quantity + quantity }
             : boughtItem
         )
       );
@@ -114,7 +169,7 @@ export default function ProductsScreen({ navigation }) {
   const handleReduceBuy = (item) => {
     setIsBuy(true);
     setIsCancel(false);
-    let itemIsBought = bought.find(
+    const itemIsBought = bought.find(
       (boughtItem) => boughtItem.itemId === item._id
     );
 
@@ -147,49 +202,54 @@ export default function ProductsScreen({ navigation }) {
       0
     );
     setTotalPrice(total);
-    // console.log(bought);
   }, [bought]);
 
-  //* Click button buy
+  //* Click button Beli
   const handleBuyTransaction = async () => {
     try {
       const items = bought.map((item) => ({
         itemId: item.itemId,
         quantity: item.quantity,
       }));
-      // console.log("🚀 ~ items ~ items:", items);
 
       const transaction = {
         type: "income",
         items,
         storeId,
       };
-      // console.log("🚀 ~ handleBuyTransaction ~ transaction:", transaction);
 
-      const result = await addTransaction({ variables: transaction });
-      console.log("🚀 ~ handleBuyTransaction ~ result:", result);
+      const res = await addTransaction({ variables: transaction });
       setIsCancel(true);
       setIsBuy(false);
+      setBought([]);
       refetch();
     } catch (error) {
       Alert.alert("Error", error.message);
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      getStoreId();
-      if (storeId) {
-        console.log(storeId, "<<< store idnya");
-        refetch();
-        refetchStoreDetail();
-      }
-    }, [storeId])
-  );
+  const handleScanSuccess = (input) => {
+    setScanning(false);
+    setScanned(true);
 
-  return (
-    <>
-      {data?.getAllItems.length == 0 || !data ? (
+    const productId = input.data;
+    // console.log("🚀 ~ handleScanSuccess ~ productId:", productId);
+
+    const product = data.getAllItems.find((item) => item._id === productId);
+    // console.log("🚀 ~ handleScanSuccess ~ product:", product);
+    if (product) {
+      handleBuy(product);
+    } else {
+      Alert.alert("Error", "Produk tidak ditemukan");
+    }
+  };
+
+  const renderContent = () => {
+    if (!storeId) return <Text>Loading..</Text>;
+    if (loading) return <Text>Loading..</Text>;
+    if (error) return <Text>Error: {error.message}</Text>;
+    if (!data || !data.getAllItems.length) {
+      return (
         <View style={styles.messageContainer}>
           <Text style={styles.messageText}>Tidak ada produk</Text>
           <TouchableOpacity
@@ -198,93 +258,87 @@ export default function ProductsScreen({ navigation }) {
             <Text style={styles.chooseStoreButtonText}>Pilih warung</Text>
           </TouchableOpacity>
         </View>
-      ) : (
-        <ScrollView>
-          <View style={styles.container}>
-            <Text style={styles.title}>{storeDetail?.getStoreById.name}</Text>
-            <View style={styles.productsContainer}>
-              {data?.getAllItems.map((product, index) => {
-                return (
-                  <ProductCard
-                    key={index}
-                    handleBuy={handleBuy}
-                    handleReduceBuy={handleReduceBuy}
-                    setBought={setBought}
-                    isCancel={isCancel}
-                    refetch={refetch}
-                    product={product}
-                  />
-                );
-              })}
-            </View>
+      );
+    }
+
+    return (
+      <ScrollView>
+        <View style={styles.container}>
+          <Text style={styles.title}>{storeDetail?.getStoreById.name}</Text>
+          <SearchBar
+            value={searchQuery}
+            onChange={(query) => setSearchQuery(query)}
+            onSubmit={() => refetch()}
+          />
+          <View style={styles.productsContainer}>
+            {data.getAllItems.map((product, index) => {
+              const boughtItem = bought.find(
+                (boughtItem) => boughtItem.itemId === product._id
+              );
+
+              return (
+                <ProductCard
+                  key={index}
+                  handleBuy={handleBuy}
+                  handleReduceBuy={handleReduceBuy}
+                  setBought={setBought}
+                  isCancel={isCancel}
+                  refetch={refetch}
+                  product={product}
+                  boughtItem={boughtItem}
+                />
+              );
+            })}
           </View>
-        </ScrollView>
-      )}
+        </View>
+      </ScrollView>
+    );
+  };
+
+  if (!permission) {
+    return (
+      <View style={styles.container}>
+        <Text style={{ textAlign: "center" }}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+  }
+
+  if (!permission.granted) {
+    Alert.alert(
+      "Permission Denied",
+      "You need to grant camera permission to use this feature"
+    );
+    return null;
+  }
+
+  return (
+    <>
+      {renderContent()}
 
       {isBuy && bought.length > 0 ? (
-        <>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              backgroundColor: "white",
-              borderRadius: 10,
-              margin: 8,
-              borderColor: "grey",
-              borderWidth: 1,
-            }}>
-            <View
-              style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}>
-              <Text style={{ fontSize: 30, fontWeight: "bold" }}>Total</Text>
-              <Text
-                style={{ fontSize: 25, fontWeight: "bold", color: "green" }}
-              >
-                {new Intl.NumberFormat("id-ID", {
-                  style: "currency",
-                  currency: "IDR",
-                }).format(totalPrice)}
-              </Text>
-            </View>
-            <View
-              style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}>
-              <TouchableOpacity
-                style={{
-                  backgroundColor: "#ffa500",
-                  paddingTop: 5,
-                  paddingBottom: 5,
-                  paddingLeft: 20,
-                  paddingRight: 20,
-                  borderRadius: 10,
-                }}
-                onPress={handleBuyTransaction}>
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: 20,
-                    alignSelf: "center",
-                  }}>
-                  Beli
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  borderColor: "red",
-                  borderWidth: 2,
-                  paddingTop: 5,
-                  paddingBottom: 5,
-                  paddingLeft: 20,
-                  paddingRight: 20,
-                  borderRadius: 10,
-                }}
-                onPress={handleCancelBuy}>
-                <Text
-                  style={{ color: "red", fontWeight: "bold", fontSize: 20 }}>
-                  Batal
-                </Text>
-              </TouchableOpacity>
-            </View>
+        <View style={styles.bottomBar}>
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total:</Text>
+            <Text style={styles.totalAmount}>
+              Rp{new Intl.NumberFormat("id-ID").format(totalPrice)}
+            </Text>
           </View>
-        </>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.buyButton}
+              onPress={handleBuyTransaction}>
+              <Text style={styles.buyButtonText}>Beli</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={handleCancelBuy}>
+              <Text style={styles.cancelButtonText}>Batal</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       ) : (
         <TouchableOpacity
           style={styles.addButton}
@@ -294,9 +348,53 @@ export default function ProductsScreen({ navigation }) {
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       )}
+
+      {scanning && (
+        <View style={styles.cameraContainer}>
+          <CameraView
+            style={styles.camera}
+            facing="back"
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr"],
+            }}
+            onBarcodeScanned={handleScanSuccess}
+          />
+          <View style={styles.overlay}>
+            <View style={styles.overlayRow}>
+              <View style={styles.overlayEdge} />
+              <View style={styles.cameraOverlay} />
+              <View style={styles.overlayEdge} />
+            </View>
+            <View style={styles.overlayRow}>
+              <View style={styles.overlayEdge} />
+              <View style={styles.cameraOverlay} />
+              <View style={styles.overlayEdge} />
+            </View>
+            <View style={styles.overlayRow}>
+              <View style={styles.overlayEdge} />
+              <View style={styles.cameraOverlay} />
+              <View style={styles.overlayEdge} />
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.cancelScanButton}
+            onPress={() => setScanning(false)}>
+            <Text style={styles.cancelScanButtonText}>Selesai</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      <TouchableOpacity
+        style={styles.scanButton}
+        onPress={() => {
+          setScanning(true);
+          setScanned(false); // Reset scanned to false when starting to scan
+        }}>
+        <Text style={styles.scanButtonText}>Scan QR</Text>
+      </TouchableOpacity>
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -304,6 +402,33 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+  },
+  cameraContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+  },
+  camera: {
+    width: 300,
+    height: 300,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  overlayRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  overlayEdge: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  cameraOverlay: {
+    width: 300,
+    height: 300,
   },
   title: {
     fontSize: 24,
@@ -314,47 +439,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     padding: 20,
-  },
-  productCard: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    margin: 10,
-    padding: 15,
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 5,
-  },
-  productName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  productPrice: {
-    fontSize: 14,
-    color: "#999",
-  },
-  addButton: {
-    position: "absolute",
-    right: 20,
-    bottom: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#ffa500",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  addButtonText: {
-    color: "#fff",
-    fontSize: 24,
-    fontWeight: "bold",
   },
   messageContainer: {
     flex: 1,
@@ -377,4 +461,104 @@ const styles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
   },
+  addButton: {
+    position: "absolute",
+    right: 20,
+    bottom: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#ffa500",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  addButtonText: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
+  scanButton: {
+    position: "absolute",
+    right: 20,
+    bottom: 100,
+    width: 120,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#1e90ff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scanButtonText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  bottomBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
+  },
+  totalContainer: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  totalText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginRight: 10,
+  },
+  totalAmount: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1e90ff",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  buyButton: {
+    backgroundColor: "#1e90ff",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+    marginRight: 10,
+  },
+  buyButtonText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  cancelButton: {
+    backgroundColor: "red",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  cancelScanButton: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    borderRadius: 5,
+  },
+  cancelScanButtonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
 });
+
+export default ProductsScreen;

@@ -18,9 +18,10 @@ export default function ProductCard({
   handleBuy,
   handleReduceBuy,
   isCancel,
+  boughtItem,
 }) {
   const { name, sellPrice, stock, barcode, imageUrl } = product;
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState(boughtItem ? boughtItem.quantity : 0);
   const [isModalVisible, setModalVisible] = useState(false);
   const [qrCodeSvg, setQrCodeSvg] = useState(null);
 
@@ -30,25 +31,32 @@ export default function ProductCard({
     }
   }, [isCancel]);
 
+  useEffect(() => {
+    if (boughtItem) {
+      setAmount(boughtItem.quantity);
+    }
+  }, [boughtItem]);
+
+  useEffect(() => {
+    if (amount === stock && amount !== 0) {
+      Alert.alert("Warning", "Stok habis");
+    }
+  }, [amount, stock]);
+
+  console.log(amount, "<<<<<<<");
+
   const disabled = stock <= 0 || amount === stock;
 
-  const saveQrCode = async () => {
-    try {
-      if (!qrCodeSvg) {
-        Alert.alert("Error", "QR Code data is not available.");
-        return;
-      }
-
+  const save = () => {
+    qrCodeSvg.toDataURL(async (data) => {
       const uri = FileSystem.cacheDirectory + "qrcode.png";
-      await FileSystem.writeAsStringAsync(uri, qrCodeSvg, {
+      await FileSystem.writeAsStringAsync(uri, data, {
         encoding: FileSystem.EncodingType.Base64,
       });
-
       await Sharing.shareAsync(uri);
-    } catch (error) {
-      console.error("Error saving/sharing QR Code: ", error);
-      Alert.alert("Error", "Failed to save/share QR Code.");
-    }
+
+      Alert.alert("Success", "QR Code saved to gallery.");
+    });
   };
 
   return (
@@ -56,10 +64,12 @@ export default function ProductCard({
       <Image source={{ uri: imageUrl }} style={styles.productImage} />
       <View style={styles.cardContent}>
         <Text style={styles.productName}>{name}</Text>
-        <Text style={styles.productPrice}>{new Intl.NumberFormat("id-ID", {
-                            style: "currency",
-                            currency: "IDR",
-                          }).format(sellPrice)}</Text>
+        <Text style={styles.productPrice}>
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+          }).format(sellPrice)}
+        </Text>
         <Text style={styles.productStock}>Stock: {stock}</Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity
@@ -88,9 +98,7 @@ export default function ProductCard({
                 value={barcode || product._id}
                 getRef={(c) => setQrCodeSvg(c)}
               />
-              <TouchableOpacity
-                style={styles.downloadButton}
-                onPress={saveQrCode}>
+              <TouchableOpacity style={styles.downloadButton} onPress={save}>
                 <Text style={styles.downloadButtonText}>Download QR Code</Text>
               </TouchableOpacity>
               <Button title="Close" onPress={() => setModalVisible(false)} />
@@ -104,7 +112,7 @@ export default function ProductCard({
             disabled={disabled}
             onPress={() => {
               setAmount(1);
-              handleBuy(product);
+              handleBuy(product, 1); // Tambahkan parameter quantity
             }}>
             <Text style={styles.addButtonText}>Beli</Text>
           </TouchableOpacity>
@@ -124,7 +132,7 @@ export default function ProductCard({
               disabled={disabled}
               onPress={() => {
                 setAmount(amount + 1);
-                handleBuy(product);
+                handleBuy(product, 1); // Tambahkan parameter quantity
               }}>
               <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
@@ -241,7 +249,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
-    alignSelf: "center"
+    alignSelf: "center",
   },
   disabledButton: {
     backgroundColor: "#ccc",
