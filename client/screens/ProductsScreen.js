@@ -14,7 +14,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import ProductCard from "../components/ProductCard";
 import SearchBar from "../components/SearchBar";
-import Bottomsheet from "../components/BottomSheet";
 
 export const GET_ALL_ITEMS = gql`
   query GetAllItems($storeId: ID!, $search: String) {
@@ -39,7 +38,6 @@ export const GET_STORE_BY_ID = gql`
     getStoreById(_id: $id) {
       _id
       name
-      address
     }
   }
 `;
@@ -81,7 +79,6 @@ export const GET_ITEM_BY_ID = gql`
 const ProductsScreen = ({ navigation }) => {
   const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchSubmit, setSearchSubmit] = useState("");
   const [bought, setBought] = useState([]);
   const [isBuy, setIsBuy] = useState(false);
   const [isCancel, setIsCancel] = useState(false);
@@ -90,7 +87,6 @@ const ProductsScreen = ({ navigation }) => {
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [successBuy, setSuccessBuy] = useState(false);
-  const [showBottomSheet, setShowBottomSheet] = useState(false);
 
   const [addTransaction, { loading: addTransactionLoading }] = useMutation(
     ADD_TRANSACTION,
@@ -102,7 +98,7 @@ const ProductsScreen = ({ navigation }) => {
   );
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
-    variables: { storeId, search: searchSubmit },
+    variables: { storeId, search: searchQuery },
     fetchPolicy: "network-only",
     skip: !storeId,
   });
@@ -239,10 +235,6 @@ const ProductsScreen = ({ navigation }) => {
     }
   };
 
-  const handleSearch = () => {
-    setSearchSubmit(searchQuery);
-  };
-
   const renderContent = () => {
     if (!storeId) return <Text>Loading..</Text>;
     if (loading) return <Text>Loading..</Text>;
@@ -253,8 +245,7 @@ const ProductsScreen = ({ navigation }) => {
           <Text style={styles.messageText}>Tidak ada produk</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
-            onPress={() => navigation.navigate("StoresScreen")}
-          >
+            onPress={() => navigation.navigate("StoresScreen")}>
             <Text style={styles.chooseStoreButtonText}>Pilih warung</Text>
           </TouchableOpacity>
         </View>
@@ -267,8 +258,8 @@ const ProductsScreen = ({ navigation }) => {
           <Text style={styles.title}>{storeDetail?.getStoreById.name}</Text>
           <SearchBar
             value={searchQuery}
-            setSearchQuery={setSearchQuery}
-            handleSearch={handleSearch}
+            onChange={(query) => setSearchQuery(query)}
+            onSubmit={() => refetch()}
           />
           <View style={styles.productsContainer}>
             {data.getAllItems.map((product, index) => {
@@ -319,64 +310,26 @@ const ProductsScreen = ({ navigation }) => {
       {renderContent()}
 
       {isBuy && bought.length > 0 && (
-        <>
-          <Bottomsheet>
-            <View>
-              <View>
-                <Text style={styles.totalText}>Total:</Text>
-                <Text style={styles.totalAmount}>
-                  Rp{new Intl.NumberFormat("id-ID").format(totalPrice)}
-                </Text>
-              </View>
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={styles.buyButton}
-                  onPress={handleBuyTransaction}
-                >
-                  <Text style={styles.buyButtonText}>Beli</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={handleCancelBuy}
-                >
-                  <Text style={styles.cancelButtonText}>Batal</Text>
-                </TouchableOpacity>
-              </View>
-              <View
-                style={{
-                  marginTop: 5,
-                  flexDirection: "row",
-                }}
-              >
-                <View
-                  style={{
-                    flex: 2,
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text style={styles.bottomSideProductName}>Product Baru</Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flex: 1,
-                    justifyContent: "flex-end",
-                  }}
-                >
-                  <TouchableOpacity style={styles.bottomSideMinButton}>
-                    <Text style={styles.bottomSideMinButtonText}>-</Text>
-                  </TouchableOpacity>
-                  <View style={styles.bottomSideProductQty}>
-                    <Text style={styles.bottomSideProductQtyText}>50</Text>
-                  </View>
-                  <TouchableOpacity style={styles.bottomSidePlusButton}>
-                    <Text style={styles.bottomSidePlusButtonText}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </Bottomsheet>
-        </>
+        <View style={styles.bottomBar}>
+          <View style={styles.totalContainer}>
+            <Text style={styles.totalText}>Total:</Text>
+            <Text style={styles.totalAmount}>
+              Rp{new Intl.NumberFormat("id-ID").format(totalPrice)}
+            </Text>
+          </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.buyButton}
+              onPress={handleBuyTransaction}>
+              <Text style={styles.buyButtonText}>Beli</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={handleCancelBuy}>
+              <Text style={styles.cancelButtonText}>Batal</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
 
       {!isBuy && (
@@ -384,8 +337,7 @@ const ProductsScreen = ({ navigation }) => {
           style={styles.addButton}
           onPress={() =>
             navigation.navigate("CreateProductScreen", { storeId })
-          }
-        >
+          }>
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       )}
@@ -419,8 +371,7 @@ const ProductsScreen = ({ navigation }) => {
           </View>
           <TouchableOpacity
             style={styles.cancelScanButton}
-            onPress={() => setScanning(false)}
-          >
+            onPress={() => setScanning(false)}>
             <Text style={styles.cancelScanButtonText}>Selesai</Text>
           </TouchableOpacity>
         </View>
@@ -432,8 +383,7 @@ const ProductsScreen = ({ navigation }) => {
           onPress={() => {
             setScanning(true);
             setScanned(false); // Reset scanned to false when starting to scan
-          }}
-        >
+          }}>
           <Text style={styles.scanButtonText}>Scan QR</Text>
         </TouchableOpacity>
       )}
@@ -478,10 +428,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    alignSelf: "flex-start",
-    paddingLeft: 20,
-    paddingTop: 10,
-    paddingBottom: 10,
   },
   productsContainer: {
     alignItems: "center",
@@ -533,7 +479,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#ffa500",
+    backgroundColor: "#1e90ff",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -565,12 +511,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginRight: 10,
-    color: "white",
   },
   totalAmount: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "#1e90ff",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -608,61 +553,6 @@ const styles = StyleSheet.create({
   cancelScanButtonText: {
     color: "#fff",
     fontSize: 16,
-  },
-  addButtonTextBottomSeet: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-    alignSelf: "center",
-  },
-  bottomSideProductName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  bottomSideMinButton: {
-    backgroundColor: "#ef5350",
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  bottomSideMinButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-    flex: 1,
-    textAlign: "center",
-  },
-  bottomSideProductQty: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  bottomSideProductQtyText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  bottomSidePlusButton: {
-    backgroundColor: "#81c784",
-    borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-  },
-  bottomSidePlusButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 14,
-    flex: 1,
-    textAlign: "center",
   },
 });
 
