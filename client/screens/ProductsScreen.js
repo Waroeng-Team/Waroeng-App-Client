@@ -580,6 +580,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    paddingBottom:150
   },
   cameraContainer: {
     ...StyleSheet.absoluteFillObject,
@@ -650,7 +651,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: "#ffa500",
+    backgroundColor: "#f3851a",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -666,7 +667,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#ffa500",
+    backgroundColor: "#f3851a",
     justifyContent: "center",
     alignItems: "center",
   },
