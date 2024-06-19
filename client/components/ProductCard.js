@@ -12,6 +12,7 @@ import {
 import QRCode from "react-native-qrcode-svg";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ProductCard({
   product,
@@ -50,7 +51,7 @@ export default function ProductCard({
     }
   }, [amount, stock]);
 
-  console.log(amount, "<<<<<<<");
+  // console.log(amount, "<<<<<<<");
 
   const disabled = stock <= 0 || amount === stock;
 
@@ -68,61 +69,64 @@ export default function ProductCard({
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: imageUrl }} style={styles.productImage} />
-      <View style={styles.cardContent}>
-        <Text style={styles.productName}>{name}</Text>
-        <Text style={styles.productPrice}>
-          {new Intl.NumberFormat("id-ID", {
-            style: "currency",
-            currency: "IDR",
-          }).format(sellPrice)}
-        </Text>
-        <Text style={styles.productStock}>Stock: {stock}</Text>
-        <View style={styles.buttonRow}>
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => {
-              /* Handle edit */
-            }}>
-            <Text style={styles.editButtonText}>Edit</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.newButton}
-            onPress={() => setModalVisible(true)}>
-            <Text style={styles.newButtonText}>Buat barcode</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Modal for QR code */}
-        <Modal
-          visible={isModalVisible}
-          transparent={true}
-          animationType="slide"
-          onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContainer}>
-              <QRCode
-                value={barcode || product._id}
-                getRef={(c) => setQrCodeSvg(c)}
-              />
-              <TouchableOpacity style={styles.downloadButton} onPress={save}>
-                <Text style={styles.downloadButtonText}>Download QR Code</Text>
-              </TouchableOpacity>
-              <Button title="Close" onPress={() => setModalVisible(false)} />
-            </View>
+      <View style={{ flexDirection: "row" }}>
+        <Image source={{ uri: imageUrl }} style={styles.productImage} />
+        <View style={styles.cardContent}>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={styles.productName}>{name}</Text>
+            <TouchableOpacity
+              style={styles.newButton}
+              onPress={() => setModalVisible(true)}
+            >
+              <Ionicons name="qr-code-outline" size={24} color="black" />
+            </TouchableOpacity>
           </View>
-        </Modal>
+          <Text style={styles.productPrice}>
+            {new Intl.NumberFormat("id-ID", {
+              style: "currency",
+              currency: "IDR",
+            }).format(sellPrice)}
+          </Text>
+          <Text style={styles.productStock}>Stock: {stock}</Text>
 
+          {/* Modal for QR code */}
+          <Modal
+            visible={isModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalBackground}>
+              <View style={styles.modalContainer}>
+                <QRCode
+                  value={barcode || product._id}
+                  getRef={(c) => setQrCodeSvg(c)}
+                />
+                <TouchableOpacity style={styles.downloadButton} onPress={save}>
+                  <Text style={styles.downloadButtonText}>
+                    Download QR Code
+                  </Text>
+                </TouchableOpacity>
+                <Button title="Close" onPress={() => setModalVisible(false)} />
+              </View>
+            </View>
+          </Modal>
+        </View>
+      </View>
+      <View style={{ flexDirection: "row", gap: 10, marginTop: 10 }}>
         {amount === 0 || isCancel ? (
-          <TouchableOpacity
-            style={[styles.addButton, disabled && styles.disabledButton]}
-            disabled={disabled}
-            onPress={() => {
-              setAmount(1);
-              handleBuy(product, 1); // Tambahkan parameter quantity
-            }}>
-            <Text style={styles.addButtonText}>Beli</Text>
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={[styles.addButton, disabled && styles.disabledButton]}
+              disabled={disabled}
+              onPress={() => {
+                setAmount(1);
+                handleBuy(product, 1); // Tambahkan parameter quantity
+              }}
+            >
+              <Text style={styles.addButtonText}>Beli</Text>
+            </TouchableOpacity>
+          </>
         ) : (
           <View style={styles.amountRow}>
             <TouchableOpacity
@@ -130,7 +134,8 @@ export default function ProductCard({
               onPress={() => {
                 setAmount(amount - 1);
                 handleReduceBuy(product);
-              }}>
+              }}
+            >
               <Text style={styles.removeButtonText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.amountText}>{amount}</Text>
@@ -140,11 +145,20 @@ export default function ProductCard({
               onPress={() => {
                 setAmount(amount + 1);
                 handleBuy(product, 1); // Tambahkan parameter quantity
-              }}>
+              }}
+            >
               <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
           </View>
         )}
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => {
+            /* Handle edit */
+          }}
+        >
+          <Text style={styles.editButtonText}>Edit</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -152,12 +166,11 @@ export default function ProductCard({
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     backgroundColor: "#ffffff",
     borderRadius: 10,
     padding: 15,
-    width: "90%",
+    width: "100%",
     marginBottom: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -174,6 +187,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#263238",
     marginBottom: 5,
+    flex: 1,
   },
   productPrice: {
     fontSize: 16,
@@ -195,7 +209,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    marginRight: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -206,10 +219,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   newButton: {
-    backgroundColor: "#ff9800",
     borderRadius: 5,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -240,17 +250,17 @@ const styles = StyleSheet.create({
   amountRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    flex: 1,
   },
   addButton: {
     backgroundColor: "#81c784",
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 12,
-    marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    flex: 1,
   },
   addButtonText: {
     color: "#fff",
@@ -270,16 +280,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    flex: 1,
   },
   removeButtonText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
+    flex: 1,
+    textAlign: "center",
   },
   amountText: {
     fontSize: 16,
     fontWeight: "bold",
     marginHorizontal: 10,
+    flex: 1,
+    textAlign: "center",
   },
   downloadButton: {
     backgroundColor: "#4caf50",

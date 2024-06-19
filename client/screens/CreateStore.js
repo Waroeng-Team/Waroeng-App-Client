@@ -67,7 +67,7 @@ export default function CreateStoreScreen({ navigation }) {
       setSince("");
       navigation.navigate("StoresScreen");
 
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.log(error);
     }

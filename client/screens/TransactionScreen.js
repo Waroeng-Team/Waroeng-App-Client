@@ -51,7 +51,7 @@ export default function TransactionScreen() {
     useCallback(() => {
       getStoreId();
       if (storeId) {
-        console.log(storeId, "<<< store idnya nihh");
+        // console.log(storeId, "<<< store idnya nihh");
         refetch();
         refetchStoreTransaction();
       }

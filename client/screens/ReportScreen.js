@@ -267,10 +267,19 @@ export default function ReportScreen({ navigation }) {
                 fontSize: 24,
                 fontWeight: "bold",
                 alignSelf: "center",
-                marginBottom: 20,
               }}
             >
               {storeDetail?.getStoreById.name}
+            </Text>
+            <Text
+              style={{
+                fontSize: 20,
+                alignSelf: "center",
+                marginBottom: 20,
+                opacity: 0.5
+              }}
+            >
+              {storeDetail?.getStoreById.address}
             </Text>
 
             <View
@@ -315,8 +324,14 @@ export default function ReportScreen({ navigation }) {
                     }}
                     key={index}
                   >
-                    <Text>{convertDate}</Text>
-                    <Text style={{ color: "green" }}>
+                    <Text style={{ flex: 1.5 }}>{convertDate}</Text>
+                    <Text
+                      style={{
+                        color: "green",
+                        flex: 1,
+                        textAlign: "left",
+                      }}
+                    >
                       {transaction.type == "income"
                         ? new Intl.NumberFormat("id-ID", {
                             style: "currency",
@@ -324,7 +339,7 @@ export default function ReportScreen({ navigation }) {
                           }).format(transaction.total)
                         : "Rp 0"}
                     </Text>
-                    <Text style={{ color: "red" }}>
+                    <Text style={{ color: "red", flex: 1, textAlign: "right" }}>
                       {transaction.type == "outcome"
                         ? new Intl.NumberFormat("id-ID", {
                             style: "currency",
@@ -386,54 +401,67 @@ export default function ReportScreen({ navigation }) {
                 <Text>Nama produk</Text>
                 <Text>Total barang</Text>
               </View>
-              {report?.totalItemTransaction.map((transactionIncome, indexIncome) => {
-                return (
-                  <View key={indexIncome}>
-                    {transactionIncome.income.length > 0 ? (
-                      <>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            paddingLeft: 5,
-                            paddingRight: 5,
-                            paddingTop: 5,
-                            paddingBottom: 5,
-                            borderBottomWidth: 1,
-                          }}
-                        >
-                          <Text>{transactionIncome.date}</Text>
-                          <View>
-                            {transactionIncome.income.map(
-                              (incomeItem, indexIncomeItem) => {
-                                return (
-                                  <Text key={indexIncomeItem} style={{ marginRight: 40 }}>
-                                    - {incomeItem.name}
-                                  </Text>
-                                );
-                              }
-                            )}
-                          </View>
+              {report?.totalItemTransaction.map(
+                (transactionIncome, indexIncome) => {
+                  return (
+                    <View key={indexIncome}>
+                      {transactionIncome.income.length > 0 ? (
+                        <>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              paddingLeft: 5,
+                              paddingRight: 5,
+                              paddingTop: 5,
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                            }}
+                          >
+                            <Text style={{ flex: 2 }}>
+                              {transactionIncome.date}
+                            </Text>
+                            <View style={{ flex: 2 }}>
+                              {transactionIncome.income.map(
+                                (incomeItem, indexIncomeItem) => {
+                                  return (
+                                    <Text
+                                      key={indexIncomeItem}
+                                      style={{ marginRight: 40 }}
+                                    >
+                                      - {incomeItem.name}
+                                    </Text>
+                                  );
+                                }
+                              )}
+                            </View>
 
-                          <View>
-                            {transactionIncome.income.map(
-                              (incomeItem, indexIncomeQty) => {
-                                return (
-                                  <Text key={indexIncomeQty} style={{ marginRight: 10 }}>
-                                    {incomeItem.quantity}
-                                  </Text>
-                                );
-                              }
-                            )}
+                            <View style={{ flex: 1 }}>
+                              {transactionIncome.income.map(
+                                (incomeItem, indexIncomeQty) => {
+                                  return (
+                                    <Text
+                                      key={indexIncomeQty}
+                                      style={{
+                                        marginRight: 10,
+                                        textAlign: "right",
+                                      }}
+                                    >
+                                      {incomeItem.quantity}
+                                    </Text>
+                                  );
+                                }
+                              )}
+                            </View>
                           </View>
-                        </View>
-                      </>
-                    ) : (
-                      ""
-                    )}
-                  </View>
-                );
-              })}
+                        </>
+                      ) : (
+                        ""
+                      )}
+                    </View>
+                  );
+                }
+              )}
             </View>
             <Text
               style={{
@@ -468,54 +496,67 @@ export default function ReportScreen({ navigation }) {
                 <Text>Nama produk</Text>
                 <Text>Total barang</Text>
               </View>
-              {report?.totalItemTransaction.map((transactionOutcome, indexOutcome) => {
-                return (
-                  <View key={indexOutcome}>
-                    {transactionOutcome.outcome.length > 0 ? (
-                      <>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            paddingLeft: 5,
-                            paddingRight: 5,
-                            paddingTop: 5,
-                            paddingBottom: 5,
-                            borderBottomWidth: 1,
-                          }}
-                        >
-                          <Text>{transactionOutcome.date}</Text>
-                          <View>
-                            {transactionOutcome.outcome.map(
-                              (outcomeItem, indexOutcomeItem) => {
-                                return (
-                                  <Text key={indexOutcomeItem} style={{ marginRight: 40 }}>
-                                    - {outcomeItem.name}
-                                  </Text>
-                                );
-                              }
-                            )}
-                          </View>
+              {report?.totalItemTransaction.map(
+                (transactionOutcome, indexOutcome) => {
+                  return (
+                    <View key={indexOutcome}>
+                      {transactionOutcome.outcome.length > 0 ? (
+                        <>
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                              paddingLeft: 5,
+                              paddingRight: 5,
+                              paddingTop: 5,
+                              paddingBottom: 5,
+                              borderBottomWidth: 1,
+                            }}
+                          >
+                            <Text style={{ flex: 2 }}>
+                              {transactionOutcome.date}
+                            </Text>
+                            <View style={{ flex: 2 }}>
+                              {transactionOutcome.outcome.map(
+                                (outcomeItem, indexOutcomeItem) => {
+                                  return (
+                                    <Text
+                                      key={indexOutcomeItem}
+                                      style={{ marginRight: 40 }}
+                                    >
+                                      - {outcomeItem.name}
+                                    </Text>
+                                  );
+                                }
+                              )}
+                            </View>
 
-                          <View>
-                            {transactionOutcome.outcome.map(
-                              (outcomeItem, indexOutcomeQty) => {
-                                return (
-                                  <Text key={indexOutcomeQty} style={{ marginRight: 10 }}>
-                                    {outcomeItem.quantity}
-                                  </Text>
-                                );
-                              }
-                            )}
+                            <View style={{ flex: 1 }}>
+                              {transactionOutcome.outcome.map(
+                                (outcomeItem, indexOutcomeQty) => {
+                                  return (
+                                    <Text
+                                      key={indexOutcomeQty}
+                                      style={{
+                                        marginRight: 10,
+                                        textAlign: "right",
+                                      }}
+                                    >
+                                      {outcomeItem.quantity}
+                                    </Text>
+                                  );
+                                }
+                              )}
+                            </View>
                           </View>
-                        </View>
-                      </>
-                    ) : (
-                      ""
-                    )}
-                  </View>
-                );
-              })}
+                        </>
+                      ) : (
+                        ""
+                      )}
+                    </View>
+                  );
+                }
+              )}
             </View>
             <View style={{ paddingLeft: 20, paddingRight: 20 }}>
               <TouchableOpacity
