@@ -102,17 +102,6 @@ const ProductsScreen = ({ navigation }) => {
     skip: !storeId,
   });
 
-  const {
-    loading: productLoading,
-    data: productData,
-    refetch: productRefetch,
-    error: productError,
-  } = useQuery(GET_ITEM_BY_ID, {
-    variables: { storeId, productId: "628555952566420000000001" },
-    fetchPolicy: "network-only",
-    skip: !storeId,
-  });
-
   const { data: storeDetail, refetch: refetchStoreDetail } = useQuery(
     GET_STORE_BY_ID,
     {
@@ -223,6 +212,7 @@ const ProductsScreen = ({ navigation }) => {
       setIsBuy(false);
       setBought([]);
       refetch();
+      navigation.navigate("TransactionScreen");
     } catch (error) {
       Alert.alert("Error", error.message);
     }
