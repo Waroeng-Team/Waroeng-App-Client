@@ -8,7 +8,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import * as SecureStore from "expo-secure-store";
 
-const StoreCard = ({ name, address, storeId }) => {
+const StoreCard = ({ name, address, storeId, phoneNumber, description }) => {
   const navigation = useNavigation();
 
   async function handleOnChooseStore() {
@@ -20,6 +20,8 @@ const StoreCard = ({ name, address, storeId }) => {
     <View style={styles.card}>
       <Text style={styles.storeName}>{name}</Text>
       <Text style={styles.address}>{address}</Text>
+      <Text style={styles.phonenumber}>{phoneNumber}</Text>
+      <Text style={styles.description}>{description}</Text>
       <TouchableOpacity style={styles.button} onPress={handleOnChooseStore}>
         <Text style={styles.buttonText}>Pilih warung ini </Text>
       </TouchableOpacity>
@@ -45,6 +47,16 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   address: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 1,
+  },
+  phonenumber: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 1,
+  },
+  description: {
     fontSize: 14,
     color: "#888",
     marginBottom: 10,
