@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,6 +15,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SelectDropdown from "react-native-select-dropdown";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { Button } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 export const GET_DAILY_REPORT = gql`
   query GetReportByDay($storeId: ID, $date: String) {
@@ -158,9 +161,13 @@ export const GET_YEARLY_REPORT = gql`
 export default function ReportScreen({ navigation }) {
   const [storeId, setStoreId] = useState("");
   const [typeReport, setTypeReport] = useState("");
-  const [date, setDate] = useState("");
+  // const [date, setDate] = useState("");
   const [report, setReport] = useState({});
   const [errorFetch, setErrorFetch] = useState(false);
+  const [date, setDate] = useState(new Date());
+  const [mode, setMode] = useState("date");
+  const [show, setShow] = useState(false);
+  const convertDate = formatDate(date);
   const { data: storeDetail, refetch: refetchStoreDetail } = useQuery(
     GET_STORE_BY_ID,
     {
@@ -170,19 +177,19 @@ export default function ReportScreen({ navigation }) {
   );
 
   const { data: reportDaily } = useQuery(GET_DAILY_REPORT, {
-    variables: { storeId, date },
+    variables: { storeId, date: convertDate },
     fetchPolicy: "no-cache",
   });
   const { data: reportWeekly } = useQuery(GET_WEEKLY_REPORT, {
-    variables: { storeId, date },
+    variables: { storeId, date: convertDate },
     fetchPolicy: "no-cache",
   });
   const { data: reportMonthly } = useQuery(GET_MONTHLY_REPORT, {
-    variables: { storeId, date },
+    variables: { storeId, date: convertDate },
     fetchPolicy: "no-cache",
   });
   const { data: reportYearly } = useQuery(GET_YEARLY_REPORT, {
-    variables: { storeId, date },
+    variables: { storeId, date: convertDate },
     fetchPolicy: "no-cache",
   });
   async function getStoreId() {
@@ -234,6 +241,40 @@ export default function ReportScreen({ navigation }) {
     }
   };
 
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // getMonth() is zero-based
+    const day = String(date.getDate()).padStart(2, "0");
+    const year = date.getFullYear();
+
+    return `${month}-${day}-${year}`;
+  }
+
+  function formatDateString(dateString) {
+    const date = new Date(dateString);
+
+    const options = { day: "2-digit", month: "long", year: "numeric" };
+    const formatter = new Intl.DateTimeFormat("id-ID", options);
+
+    return formatter.format(date);
+  }
+
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios");
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode) => {
+    setShow(true);
+    11;
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode("date");
+  };
+
   useFocusEffect(
     useCallback(() => {
       getStoreId();
@@ -276,7 +317,7 @@ export default function ReportScreen({ navigation }) {
                 fontSize: 20,
                 alignSelf: "center",
                 marginBottom: 20,
-                opacity: 0.5
+                opacity: 0.5,
               }}
             >
               {storeDetail?.getStoreById.address}
@@ -570,7 +611,6 @@ export default function ReportScreen({ navigation }) {
                 }}
                 onPress={() => {
                   setReport({});
-                  setDate("");
                   setTypeReport("");
                 }}
               >
@@ -597,7 +637,7 @@ export default function ReportScreen({ navigation }) {
             ) : (
               ""
             )}
-            <View>
+            <View style={{ width: "70%" }}>
               <Text
                 style={{ fontSize: 20, fontWeight: "bold", marginBottom: 5 }}
               >
@@ -639,14 +679,70 @@ export default function ReportScreen({ navigation }) {
                 dropdownStyle={styles.dropdownMenuStyle}
               />
             </View>
-            <View style={{ marginTop: 10 }}>
+            <View
+              style={{
+                gap: 10,
+                marginTop: 20,
+                marginBottom: 30,
+                width: "70%",
+              }}
+            >
+              <View style={{ justifyContent: "center" }}>
+                <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                  Pilih Tanggal:
+                </Text>
+              </View>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: 12,
+                  justifyContent: "center",
+                }}
+              >
+                <TouchableOpacity
+                  onPress={showDatepicker}
+                  style={{
+                    paddingBottom: 10,
+                    paddingTop: 10,
+                    paddingLeft: 15,
+                    paddingRight: 15,
+                    height: 50,
+                  }}
+                >
+                  <View style={{ flex: 1, justifyContent: "center" }}>
+                    <Text
+                      style={{
+                        fontSize: 20,
+                        fontWeight: "bold",
+                        textAlign: "center",
+                        color: "grey",
+                      }}
+                    >
+                      {formatDateString(date)}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+
+                {show && (
+                  <DateTimePicker
+                    testID="dateTimePicker"
+                    value={date}
+                    mode={mode}
+                    is24Hour={true}
+                    display="default"
+                    onChange={onChange}
+                  />
+                )}
+              </View>
+            </View>
+            {/* <View style={{ marginTop: 10 }}>
               <Text style={{ fontSize: 20, fontWeight: "bold" }}>Tanggal:</Text>
               <TextInput
                 style={styles.input}
                 placeholder="bulan-hari-tahun (cth: 06-18-2024)"
                 onChangeText={(e) => setDate(e)}
               />
-            </View>
+            </View> */}
             <TouchableOpacity
               style={styles.seeReportButton}
               onPress={handleSeeReport}
@@ -672,7 +768,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   dropdownButtonStyle: {
-    width: 250,
     height: 50,
     backgroundColor: "white",
     borderRadius: 12,
