@@ -1,14 +1,29 @@
-import { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  Button,
+} from "react-native";
+import QRCode from "react-native-qrcode-svg";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 export default function ProductCard({
   product,
   handleBuy,
   handleReduceBuy,
   isCancel,
+  boughtItem,
 }) {
-  const { name, sellPrice, stock, imageUrl } = product;
-  const [amount, setAmount] = useState(0);
+  const { name, sellPrice, stock, barcode, imageUrl } = product;
+  const [amount, setAmount] = useState(boughtItem ? boughtItem.quantity : 0);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [qrCodeSvg, setQrCodeSvg] = useState(null);
 
   useEffect(() => {
     if (isCancel) {
@@ -16,17 +31,45 @@ export default function ProductCard({
     }
   }, [isCancel]);
 
+  useEffect(() => {
+    if (boughtItem) {
+      setAmount(boughtItem.quantity);
+    }
+  }, [boughtItem]);
+
+  useEffect(() => {
+    if (amount === stock && amount !== 0) {
+      Alert.alert("Warning", "Stok habis");
+    }
+  }, [amount, stock]);
+
+  console.log(amount, "<<<<<<<");
+
   const disabled = stock <= 0 || amount === stock;
+
+  const save = () => {
+    qrCodeSvg.toDataURL(async (data) => {
+      const uri = FileSystem.cacheDirectory + "qrcode.png";
+      await FileSystem.writeAsStringAsync(uri, data, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      await Sharing.shareAsync(uri);
+
+      Alert.alert("Success", "QR Code saved to gallery.");
+    });
+  };
 
   return (
     <View style={styles.card}>
       <Image source={{ uri: imageUrl }} style={styles.productImage} />
       <View style={styles.cardContent}>
         <Text style={styles.productName}>{name}</Text>
-        <Text style={styles.productPrice}>{new Intl.NumberFormat("id-ID", {
-                            style: "currency",
-                            currency: "IDR",
-                          }).format(sellPrice)}</Text>
+        <Text style={styles.productPrice}>
+          {new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+          }).format(sellPrice)}
+        </Text>
         <Text style={styles.productStock}>Stock: {stock}</Text>
         <View style={styles.buttonRow}>
           <TouchableOpacity
@@ -36,16 +79,42 @@ export default function ProductCard({
             }}>
             <Text style={styles.editButtonText}>Edit</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.newButton}
+            onPress={() => setModalVisible(true)}>
+            <Text style={styles.newButtonText}>Buat barcode</Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Modal for QR code */}
+        <Modal
+          visible={isModalVisible}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setModalVisible(false)}>
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <QRCode
+                value={barcode || product._id}
+                getRef={(c) => setQrCodeSvg(c)}
+              />
+              <TouchableOpacity style={styles.downloadButton} onPress={save}>
+                <Text style={styles.downloadButtonText}>Download QR Code</Text>
+              </TouchableOpacity>
+              <Button title="Close" onPress={() => setModalVisible(false)} />
+            </View>
+          </View>
+        </Modal>
+
         {amount === 0 || isCancel ? (
           <TouchableOpacity
             style={[styles.addButton, disabled && styles.disabledButton]}
             disabled={disabled}
             onPress={() => {
               setAmount(1);
-              handleBuy(product);
+              handleBuy(product, 1); // Tambahkan parameter quantity
             }}>
-            <Text style={styles.addButtonText}>Tambah</Text>
+            <Text style={styles.addButtonText}>Beli</Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.amountRow}>
@@ -63,7 +132,7 @@ export default function ProductCard({
               disabled={disabled}
               onPress={() => {
                 setAmount(amount + 1);
-                handleBuy(product);
+                handleBuy(product, 1); // Tambahkan parameter quantity
               }}>
               <Text style={styles.addButtonText}>+</Text>
             </TouchableOpacity>
@@ -75,12 +144,6 @@ export default function ProductCard({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f0f0f0",
-  },
   card: {
     flexDirection: "row",
     alignItems: "center",
@@ -121,16 +184,45 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   editButton: {
-    backgroundColor: "#81d4fa",
+    backgroundColor: "#2196f3",
     borderRadius: 5,
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   editButtonText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  newButton: {
+    backgroundColor: "#ff9800",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  newButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
   },
   productImage: {
     width: 100,
@@ -141,6 +233,7 @@ const styles = StyleSheet.create({
   amountRow: {
     flexDirection: "row",
     alignItems: "center",
+    marginTop: 10,
   },
   addButton: {
     backgroundColor: "#81c784",
@@ -148,12 +241,15 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   addButtonText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 14,
-    alignSelf: "center"
+    alignSelf: "center",
   },
   disabledButton: {
     backgroundColor: "#ccc",
@@ -164,6 +260,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     marginRight: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   removeButtonText: {
     color: "#fff",
@@ -174,5 +273,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginHorizontal: 10,
+  },
+  downloadButton: {
+    backgroundColor: "#4caf50",
+    borderRadius: 5,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  downloadButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
