@@ -14,6 +14,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import ProductCard from "../components/ProductCard";
 import SearchBar from "../components/SearchBar";
+import Bottomsheet from "../components/BottomSheet";
 
 export const GET_ALL_ITEMS = gql`
   query GetAllItems($storeId: ID!, $search: String) {
@@ -38,6 +39,7 @@ export const GET_STORE_BY_ID = gql`
     getStoreById(_id: $id) {
       _id
       name
+      address
     }
   }
 `;
@@ -79,6 +81,7 @@ export const GET_ITEM_BY_ID = gql`
 const ProductsScreen = ({ navigation }) => {
   const [storeId, setStoreId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchSubmit, setSearchSubmit] = useState("");
   const [bought, setBought] = useState([]);
   const [isBuy, setIsBuy] = useState(false);
   const [isCancel, setIsCancel] = useState(false);
@@ -87,6 +90,11 @@ const ProductsScreen = ({ navigation }) => {
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [successBuy, setSuccessBuy] = useState(false);
+  const [showBottomSheet, setShowBottomSheet] = useState(false);
+  const [addStock, setAddStock] = useState([]);
+  const [isAddStock, setIsAddStock] = useState(false);
+  const [isCancelAddStock, setIsCancelAddStock] = useState(false);
+  // console.log(addStock);
 
   const [addTransaction, { loading: addTransactionLoading }] = useMutation(
     ADD_TRANSACTION,
@@ -98,7 +106,7 @@ const ProductsScreen = ({ navigation }) => {
   );
 
   const { loading, error, data, refetch } = useQuery(GET_ALL_ITEMS, {
-    variables: { storeId, search: searchQuery },
+    variables: { storeId, search: searchSubmit },
     fetchPolicy: "network-only",
     skip: !storeId,
   });
@@ -115,6 +123,7 @@ const ProductsScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       getStoreId();
+      refetch();
     }, [])
   );
 
@@ -131,7 +140,65 @@ const ProductsScreen = ({ navigation }) => {
     }
   };
 
+  //------bawah
+  const handleAddStock = (item) => {
+    setIsBuy(false);
+    setIsCancel(true);
+    // setBought([])
+    setIsAddStock(true);
+    setIsCancelAddStock(false);
+    let itemIsAddStock = addStock.find(
+      (addStockItem) => addStockItem.itemId === item._id
+    );
+    if (!itemIsAddStock) {
+      setAddStock([
+        ...addStock,
+        { itemId: item._id, quantity: 1, price: item.buyPrice },
+      ]);
+    } else {
+      setAddStock(
+        addStock.map((addStockItem) =>
+          addStockItem.itemId == item._id
+            ? { ...addStockItem, quantity: addStockItem.quantity + 1 }
+            : addStockItem
+        )
+      );
+    }
+  };
+  //------atas
+
+  //------bawah
+  const handleReduceAddStock = (item) => {
+    // console.log(item)
+    setIsAddStock(true);
+    setIsCancelAddStock(false);
+    let itemIsAddStock = addStock.find(
+      (addStockItem) => addStockItem.itemId === item._id
+    );
+    if (itemIsAddStock) {
+      if (itemIsAddStock.quantity > 1) {
+        // console.log(addStock)
+        setAddStock(
+          addStock.map((addStockItem) =>
+            addStockItem.itemId == item._id
+              ? { ...addStockItem, quantity: addStockItem.quantity - 1 }
+              : addStockItem
+          )
+        );
+      } else if (itemIsAddStock.quantity === 1) {
+        setAddStock(
+          addStock.filter((addStockItem) => addStockItem.itemId !== item._id)
+        );
+      }
+    }
+  };
+  //------atas
+
   const handleBuy = (item, quantity = 1) => {
+    console.log("masuk");
+    setIsAddStock(false); //------
+    setIsCancelAddStock(true); //------
+    // setAddStock([]) //------
     setIsBuy(true);
     setSuccessBuy(false);
     setIsCancel(false);
@@ -181,9 +248,12 @@ const ProductsScreen = ({ navigation }) => {
 
   const handleCancelBuy = () => {
     setIsBuy(false);
+    setIsAddStock(false); //------
     setIsCancel(true);
+    setIsCancelAddStock(true); //------
     setSuccessBuy(true);
     setBought([]);
+    setAddStock([]); //------
   };
 
   useEffect(() => {
@@ -193,6 +263,17 @@ const ProductsScreen = ({ navigation }) => {
     );
     setTotalPrice(total);
   }, [bought]);
+
+  //------bawah
+  useEffect(() => {
+    const total = addStock.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+    setTotalPrice(total);
+    // console.log(bought);
+  }, [addStock]);
+  //------atas
 
   const handleBuyTransaction = async () => {
     try {
@@ -220,6 +301,34 @@ const ProductsScreen = ({ navigation }) => {
     }
   };
 
+  //------bawah------
+  const handleAddStockTransaction = async () => {
+    try {
+      const items = addStock.map((item) => ({
+        itemId: item.itemId,
+        quantity: item.quantity,
+      }));
+      // console.log("🚀 ~ items ~ items:", items);
+
+      const transaction = {
+        type: "outcome",
+        items,
+        storeId,
+      };
+      // console.log("🚀 ~ handleBuyTransaction ~ transaction:", transaction);
+
+      const result = await addTransaction({ variables: transaction });
+      // console.log("🚀 ~ handleBuyTransaction ~ result:", result);
+      setIsCancelAddStock(true);
+      setIsAddStock(false);
+      setAddStock([]);
+      navigation.navigate("TransactionScreen");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
+  };
+  //------atas
+
   const handleScanSuccess = (input) => {
     setScanning(false);
     setScanned(true);
@@ -235,9 +344,23 @@ const ProductsScreen = ({ navigation }) => {
     }
   };
 
+  const handleSearch = () => {
+    setSearchSubmit(searchQuery);
+  };
+
   const renderContent = () => {
-    if (!storeId) return <Text>Loading..</Text>;
-    if (loading) return <Text>Loading..</Text>;
+    if (!storeId)
+      return (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text style={{ textAlign: "center", fontSize: 40 }}>Loading...</Text>
+        </View>
+      );
+    if (loading)
+      return (
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text style={{ textAlign: "center", fontSize: 40 }}>Loading...</Text>
+        </View>
+      );
     if (error) return <Text>Error: {error.message}</Text>;
     if (!data || !data.getAllItems.length) {
       return (
@@ -245,7 +368,8 @@ const ProductsScreen = ({ navigation }) => {
           <Text style={styles.messageText}>Tidak ada produk</Text>
           <TouchableOpacity
             style={styles.chooseStoreButton}
-            onPress={() => navigation.navigate("StoresScreen")}>
+            onPress={() => navigation.navigate("StoresScreen")}
+          >
             <Text style={styles.chooseStoreButtonText}>Pilih warung</Text>
           </TouchableOpacity>
         </View>
@@ -258,8 +382,8 @@ const ProductsScreen = ({ navigation }) => {
           <Text style={styles.title}>{storeDetail?.getStoreById.name}</Text>
           <SearchBar
             value={searchQuery}
-            onChange={(query) => setSearchQuery(query)}
-            onSubmit={() => refetch()}
+            setSearchQuery={setSearchQuery}
+            handleSearch={handleSearch}
           />
           <View style={styles.productsContainer}>
             {data.getAllItems.map((product, index) => {
@@ -271,10 +395,14 @@ const ProductsScreen = ({ navigation }) => {
                 <ProductCard
                   key={index}
                   handleBuy={handleBuy}
+                  handleAddStock={handleAddStock} //------
                   handleReduceBuy={handleReduceBuy}
+                  handleReduceAddStock={handleReduceAddStock} //------
                   product={product}
+                  isCancelAddStock={isCancelAddStock} //------
                   successBuy={successBuy}
                   boughtItem={boughtItem}
+                  isCancel={isCancel}
                 />
               );
             })}
@@ -309,35 +437,88 @@ const ProductsScreen = ({ navigation }) => {
     <>
       {renderContent()}
 
-      {isBuy && bought.length > 0 && (
-        <View style={styles.bottomBar}>
-          <View style={styles.totalContainer}>
-            <Text style={styles.totalText}>Total:</Text>
-            <Text style={styles.totalAmount}>
-              Rp{new Intl.NumberFormat("id-ID").format(totalPrice)}
-            </Text>
+      {(isBuy && bought.length > 0) || (isAddStock && addStock.length > 0) ? (
+        <>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              backgroundColor: "white",
+              borderRadius: 10,
+              margin: 8,
+              borderColor: "grey",
+              borderWidth: 1,
+            }}
+          >
+            <View
+              style={{ paddingLeft: 15, paddingTop: 10, paddingBottom: 10 }}
+            >
+              <Text style={{ fontSize: 30, fontWeight: "bold" }}>Total</Text>
+              <Text
+                style={{ fontSize: 25, fontWeight: "bold", color: "green" }}
+              >
+                {new Intl.NumberFormat("id-ID", {
+                  style: "currency",
+                  currency: "IDR",
+                }).format(totalPrice)}
+              </Text>
+            </View>
+            <View
+              style={{ justifyContent: "center", paddingRight: 10, gap: 5 }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#ffa500",
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                  borderRadius: 10,
+                }}
+                // diubah
+                onPress={
+                  isBuy ? handleBuyTransaction : handleAddStockTransaction
+                }
+              >
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 20,
+                    alignSelf: "center",
+                  }}
+                >
+                  {/* diubah */}
+                  {isBuy ? "Beli" : "Stock"}
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  borderColor: "red",
+                  borderWidth: 2,
+                  paddingTop: 5,
+                  paddingBottom: 5,
+                  paddingLeft: 20,
+                  paddingRight: 20,
+                  borderRadius: 10,
+                }}
+                onPress={handleCancelBuy}
+              >
+                <Text
+                  style={{ color: "red", fontWeight: "bold", fontSize: 20 }}
+                >
+                  Batal
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.buyButton}
-              onPress={handleBuyTransaction}>
-              <Text style={styles.buyButtonText}>Beli</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={handleCancelBuy}>
-              <Text style={styles.cancelButtonText}>Batal</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-      {!isBuy && (
+        </>
+      ) : (
         <TouchableOpacity
           style={styles.addButton}
           onPress={() =>
             navigation.navigate("CreateProductScreen", { storeId })
-          }>
+          }
+        >
           <Text style={styles.addButtonText}>+</Text>
         </TouchableOpacity>
       )}
@@ -371,7 +552,8 @@ const ProductsScreen = ({ navigation }) => {
           </View>
           <TouchableOpacity
             style={styles.cancelScanButton}
-            onPress={() => setScanning(false)}>
+            onPress={() => setScanning(false)}
+          >
             <Text style={styles.cancelScanButtonText}>Selesai</Text>
           </TouchableOpacity>
         </View>
@@ -383,7 +565,8 @@ const ProductsScreen = ({ navigation }) => {
           onPress={() => {
             setScanning(true);
             setScanned(false); // Reset scanned to false when starting to scan
-          }}>
+          }}
+        >
           <Text style={styles.scanButtonText}>Scan QR</Text>
         </TouchableOpacity>
       )}
@@ -428,6 +611,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
+    alignSelf: "flex-start",
+    paddingLeft: 20,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
   productsContainer: {
     alignItems: "center",
@@ -479,7 +666,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#1e90ff",
+    backgroundColor: "#ffa500",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -511,11 +698,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginRight: 10,
+    color: "white",
   },
   totalAmount: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1e90ff",
+    color: "white",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -553,6 +741,61 @@ const styles = StyleSheet.create({
   cancelScanButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  addButtonTextBottomSeet: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    alignSelf: "center",
+  },
+  bottomSideProductName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  bottomSideMinButton: {
+    backgroundColor: "#ef5350",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  bottomSideMinButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    flex: 1,
+    textAlign: "center",
+  },
+  bottomSideProductQty: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bottomSideProductQtyText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  bottomSidePlusButton: {
+    backgroundColor: "#81c784",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  bottomSidePlusButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    flex: 1,
+    textAlign: "center",
   },
 });
 

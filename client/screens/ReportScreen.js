@@ -168,6 +168,7 @@ export default function ReportScreen({ navigation }) {
   const [mode, setMode] = useState("date");
   const [show, setShow] = useState(false);
   const convertDate = formatDate(date);
+  console.log(convertDate)
   const { data: storeDetail, refetch: refetchStoreDetail } = useQuery(
     GET_STORE_BY_ID,
     {
