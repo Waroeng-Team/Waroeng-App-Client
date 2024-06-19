@@ -182,7 +182,7 @@ const ProductsScreen = ({ navigation }) => {
   const handleCancelBuy = () => {
     setIsBuy(false);
     setIsCancel(true);
-    setSuccessBuy(false);
+    setSuccessBuy(true);
     setBought([]);
   };
 
