@@ -43,8 +43,8 @@ export const GET_STORE_BY_ID = gql`
 `;
 
 export const ADD_TRANSACTION = gql`
-  mutation AddTransaction($type: String, $items: [ItemInput], $storeId: ID) {
-    addTransaction(type: $type, items: $items, storeId: $storeId) {
+  mutation Addtransaction($type: String, $items: [ItemInput], $storeId: ID) {
+    addtransaction(type: $type, items: $items, storeId: $storeId) {
       _id
       type
       items {
@@ -86,6 +86,7 @@ const ProductsScreen = ({ navigation }) => {
   const [scanning, setScanning] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
+  const [successBuy, setSuccessBuy] = useState(false);
 
   const [addTransaction, { loading: addTransactionLoading }] = useMutation(
     ADD_TRANSACTION,
@@ -132,6 +133,7 @@ const ProductsScreen = ({ navigation }) => {
 
   const handleBuy = (item, quantity = 1) => {
     setIsBuy(true);
+    setSuccessBuy(false);
     setIsCancel(false);
     const itemIsBought = bought.find(
       (boughtItem) => boughtItem.itemId === item._id
@@ -180,6 +182,7 @@ const ProductsScreen = ({ navigation }) => {
   const handleCancelBuy = () => {
     setIsBuy(false);
     setIsCancel(true);
+    setSuccessBuy(false);
     setBought([]);
   };
 
@@ -203,12 +206,14 @@ const ProductsScreen = ({ navigation }) => {
         items,
         storeId,
       };
+      // console.log("🚀 ~ handleBuyTransaction ~ transaction:", transaction);
 
       const res = await addTransaction({ variables: transaction });
       setIsCancel(true);
       setIsBuy(false);
       setBought([]);
       refetch();
+      setSuccessBuy(true);
       navigation.navigate("TransactionScreen");
     } catch (error) {
       Alert.alert("Error", error.message);
@@ -268,6 +273,7 @@ const ProductsScreen = ({ navigation }) => {
                   handleBuy={handleBuy}
                   handleReduceBuy={handleReduceBuy}
                   product={product}
+                  successBuy={successBuy}
                   boughtItem={boughtItem}
                 />
               );

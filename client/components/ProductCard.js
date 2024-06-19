@@ -19,11 +19,18 @@ export default function ProductCard({
   handleReduceBuy,
   isCancel,
   boughtItem,
+  successBuy,
 }) {
   const { name, sellPrice, stock, barcode, imageUrl } = product;
   const [amount, setAmount] = useState(boughtItem ? boughtItem.quantity : 0);
   const [isModalVisible, setModalVisible] = useState(false);
   const [qrCodeSvg, setQrCodeSvg] = useState(null);
+
+  useEffect(() => {
+    if (successBuy === true) {
+      setAmount(0);
+    }
+  });
 
   useEffect(() => {
     if (isCancel) {
