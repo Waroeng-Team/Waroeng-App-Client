@@ -342,6 +342,38 @@ const ProductsScreen = ({ navigation }) => {
                   <Text style={styles.cancelButtonText}>Batal</Text>
                 </TouchableOpacity>
               </View>
+              <View
+                style={{
+                  marginTop: 5,
+                  flexDirection: "row",
+                }}
+              >
+                <View
+                  style={{
+                    flex: 2,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text style={styles.bottomSideProductName}>Product Baru</Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    flex: 1,
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <TouchableOpacity style={styles.bottomSideMinButton}>
+                    <Text style={styles.bottomSideMinButtonText}>-</Text>
+                  </TouchableOpacity>
+                  <View style={styles.bottomSideProductQty}>
+                    <Text style={styles.bottomSideProductQtyText}>50</Text>
+                  </View>
+                  <TouchableOpacity style={styles.bottomSidePlusButton}>
+                    <Text style={styles.bottomSidePlusButtonText}>+</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </Bottomsheet>
         </>
@@ -533,11 +565,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginRight: 10,
+    color: "white",
   },
   totalAmount: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1e90ff",
+    color: "white",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -575,6 +608,61 @@ const styles = StyleSheet.create({
   cancelScanButtonText: {
     color: "#fff",
     fontSize: 16,
+  },
+  addButtonTextBottomSeet: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    alignSelf: "center",
+  },
+  bottomSideProductName: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  bottomSideMinButton: {
+    backgroundColor: "#ef5350",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  bottomSideMinButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    flex: 1,
+    textAlign: "center",
+  },
+  bottomSideProductQty: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bottomSideProductQtyText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  bottomSidePlusButton: {
+    backgroundColor: "#81c784",
+    borderRadius: 5,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+  },
+  bottomSidePlusButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+    flex: 1,
+    textAlign: "center",
   },
 });
 
