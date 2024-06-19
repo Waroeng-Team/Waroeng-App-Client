@@ -22,12 +22,24 @@ export default function ProductCard({
   isCancel,
   boughtItem,
   successBuy,
+  isCancelAddStock, //------
+  handleAddStock, //------
+  handleReduceAddStock, //------
 }) {
   const { name, sellPrice, stock, barcode, imageUrl } = product;
   const [amount, setAmount] = useState(boughtItem ? boughtItem.quantity : 0);
   const [isModalVisible, setModalVisible] = useState(false);
   const [qrCodeSvg, setQrCodeSvg] = useState(null);
+  const [amountAddStock, setAmountAddStock] = useState(0); //------
   const navigation = useNavigation();
+
+  //------bawah
+  useEffect(() => {
+    if (isCancelAddStock) {
+      setAmountAddStock(0);
+    }
+  }, [isCancelAddStock]);
+  ///------atas
 
   useEffect(() => {
     if (successBuy === true) {
@@ -166,6 +178,64 @@ export default function ProductCard({
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
       </View>
+      {/* ---tambah stock--- */}
+      {amountAddStock === 0 || isCancelAddStock ? (
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#ffa500",
+            width: "100%",
+            marginTop: 6,
+            borderRadius: 5,
+            paddingBottom: 8,
+            paddingTop: 8,
+          }}
+          onPress={() => {
+            setAmountAddStock(1);
+            handleAddStock(product);
+          }}
+        >
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: 14,
+              color: "#fff",
+              fontWeight: "bold",
+            }}
+          >
+            Tambah stock
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            flex: 1,
+            marginTop:5
+          }}
+        >
+          <TouchableOpacity
+            style={styles.removeButton}
+            onPress={() => {
+              setAmountAddStock(amountAddStock - 1);
+              handleReduceAddStock(product);
+            }}
+          >
+            <Text style={styles.removeButtonText}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.amountText}>{amountAddStock}</Text>
+          <TouchableOpacity
+            style={[styles.addButton]}
+            onPress={() => {
+              setAmountAddStock(amountAddStock + 1);
+              handleAddStock(product);
+            }}
+          >
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {/* ---tambah stock--- */}
     </View>
   );
 }

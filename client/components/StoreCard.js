@@ -20,7 +20,7 @@ const StoreCard = ({ name, address, storeId, phoneNumber, description }) => {
     <View style={styles.card}>
       <Text style={styles.storeName}>{name}</Text>
       <Text style={styles.address}>{address}</Text>
-      <Text style={styles.phonenumber}>{phoneNumber}</Text>
+      <Text style={styles.phonenumber}>+62 {phoneNumber}</Text>
       <Text style={styles.description}>{description}</Text>
       <TouchableOpacity style={styles.button} onPress={handleOnChooseStore}>
         <Text style={styles.buttonText}>Pilih warung ini </Text>
