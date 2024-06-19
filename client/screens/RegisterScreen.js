@@ -55,7 +55,7 @@ export default function RegisterScreen({ navigation }) {
               resizeMode: "cover",
             }}
             source={{
-              uri: "https://cdn.discordapp.com/attachments/1249594817189515300/1250701503128272996/Logo.png?ex=6671d4cb&is=6670834b&hm=dd8af368dc8ff28d445b00537b74211da047046de4a01a8c56c1ff7739311bd4&",
+              uri: "https://res.cloudinary.com/djeteqtzh/image/upload/fl_preserve_transparency/v1718816482/Logo_wbipar.jpg?_s=public-apps",
             }}
           />
         </View>
