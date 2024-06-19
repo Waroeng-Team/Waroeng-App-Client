@@ -67,7 +67,6 @@ export default function CreateProductScreen({ navigation }) {
   const [stock, setStock] = useState(0);
   const [buyPrice, setBuyPrice] = useState(0);
   const [sellPrice, setSellPrice] = useState(0);
-  const [image, setImage] = useState();
 
   const route = useRoute();
   const storeId = route.params.storeId;
@@ -99,7 +98,7 @@ export default function CreateProductScreen({ navigation }) {
   };
 
   const galleryUpload = async () => {
-    // No permissions request is necessary for launching the image library
+    setUploading(true); // Start uploading
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.image,
       allowsEditing: true,
@@ -133,18 +132,21 @@ export default function CreateProductScreen({ navigation }) {
         // const imageUrl = response.data.secure_url;
         // setImageUrl(imageUrl); // Save the URL in state
         // setImage(result.uri); // Display the selected image on the UI
-        // alert("Image uploaded successfully!");
       } catch (err) {
         console.error("Error uploading image:", err);
         console.log(err.message);
         alert("Failed to upload image.");
       } finally {
-        setUploading(false);
+        setUploading(false); // End uploading
       }
+      console.log(imageUrl);
+    } else {
+      setUploading(false); // End uploading if the user cancels the operation
     }
   };
 
   const cameraUpload = async () => {
+    setUploading(true);
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.image,
@@ -156,7 +158,8 @@ export default function CreateProductScreen({ navigation }) {
     // console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImageUrl(result.assets[0].uri);
+      setUploading(false);
     }
   };
   // const uploadImage = async () => {
@@ -209,9 +212,9 @@ export default function CreateProductScreen({ navigation }) {
                 onChangeText={(text) => setBuyPrice(text)}
               />
             </View>
-            
+
             <View style={{ width: "49%" }}>
-            <Text style={styles.label}>Harga Jual</Text>
+              <Text style={styles.label}>Harga Jual</Text>
               <TextInput
                 style={styles.inputHalf}
                 placeholder="Rp0"
@@ -259,9 +262,14 @@ export default function CreateProductScreen({ navigation }) {
           </View>
 
           <View style={styles.imageUploadContainer}>
-            {image && (
-              <Image source={{ uri: image }} style={styles.imagePlaceholder} />
-            )}
+            {uploading ? (
+              <Text>Uploading...</Text>
+            ) : imageUrl ? (
+              <Image
+                source={{ uri: imageUrl }}
+                style={styles.imagePlaceholder}
+              />
+            ) : null}
           </View>
 
           <View style={styles.buttonRow}>
