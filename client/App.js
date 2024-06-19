@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { AuthContext } from "./contexts/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const Stack = createNativeStackNavigator();
 
@@ -52,67 +53,69 @@ export default function App() {
     getToken();
   }, []);
   return (
-    <AuthContext.Provider value={{ isSignedIn, setIsSignedIn }}>
-      <ApolloProvider client={client}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            {isSignedIn ? (
-              // isNewAccount ? (
-              //   <>
-              //     <Stack.Screen
-              //       name="CreateStoreScreen"
-              //       component={CreateStoreScreen}
-              //       options={{ title: "Create Store" }}
-              //     />
-              //     <Stack.Screen
-              //       name="DrawerNavigator"
-              //       component={DrawerNavigator}
-              //       options={{ headerShown: false }}
-              //     />
-              //   </>
-              // ) : (
-              //   <>
-              //     <Stack.Screen
-              //       name="DrawerNavigator"
-              //       component={DrawerNavigator}
-              //       options={{ headerShown: false }}
-              //     />
-              //     <Stack.Screen
-              //       name="CreateProductScreen"
-              //       component={CreateProductScreen}
-              //       options={{ title: "Tambah produk baru" }}
-              //     />
-              //   </>
-              // )
-              <>
-                <Stack.Screen
-                  name="DrawerNavigator"
-                  component={DrawerNavigator}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="CreateProductScreen"
-                  component={CreateProductScreen}
-                  options={{ title: "Tambah produk baru" }}
-                />
-              </>
-            ) : (
-              <>
-                <Stack.Screen
-                  name="LoginScreen"
-                  component={LoginScreen}
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="RegisterScreen"
-                  component={RegisterScreen}
-                  options={{ headerShown: false }}
-                />
-              </>
-            )}
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ApolloProvider>
-    </AuthContext.Provider>
+    <GestureHandlerRootView>
+      <AuthContext.Provider value={{ isSignedIn, setIsSignedIn }}>
+        <ApolloProvider client={client}>
+          <NavigationContainer>
+            <Stack.Navigator>
+              {isSignedIn ? (
+                // isNewAccount ? (
+                //   <>
+                //     <Stack.Screen
+                //       name="CreateStoreScreen"
+                //       component={CreateStoreScreen}
+                //       options={{ title: "Create Store" }}
+                //     />
+                //     <Stack.Screen
+                //       name="DrawerNavigator"
+                //       component={DrawerNavigator}
+                //       options={{ headerShown: false }}
+                //     />
+                //   </>
+                // ) : (
+                //   <>
+                //     <Stack.Screen
+                //       name="DrawerNavigator"
+                //       component={DrawerNavigator}
+                //       options={{ headerShown: false }}
+                //     />
+                //     <Stack.Screen
+                //       name="CreateProductScreen"
+                //       component={CreateProductScreen}
+                //       options={{ title: "Tambah produk baru" }}
+                //     />
+                //   </>
+                // )
+                <>
+                  <Stack.Screen
+                    name="DrawerNavigator"
+                    component={DrawerNavigator}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="CreateProductScreen"
+                    component={CreateProductScreen}
+                    options={{ title: "Tambah produk baru" }}
+                  />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen
+                    name="LoginScreen"
+                    component={LoginScreen}
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="RegisterScreen"
+                    component={RegisterScreen}
+                    options={{ headerShown: false }}
+                  />
+                </>
+              )}
+            </Stack.Navigator>
+          </NavigationContainer>
+        </ApolloProvider>
+      </AuthContext.Provider>
+    </GestureHandlerRootView>
   );
 }

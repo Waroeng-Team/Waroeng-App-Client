@@ -13,6 +13,7 @@ import * as SecureStore from "expo-secure-store";
 import StoresScreen from "../screens/StoresScreen";
 import ReportScreen from "../screens/ReportScreen";
 import TransactionScreen from "../screens/TransactionScreen";
+import { Ionicons } from "@expo/vector-icons";
 
 const Drawer = createDrawerNavigator();
 
@@ -30,10 +31,18 @@ export default function DrawerNavigator() {
   }
 
   function CustomDrawerContent(props) {
+    const labelStyle = {
+      fontSize: 16,
+      color: "gray",
+    };
     return (
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
-        <DrawerItem label="Keluar" onPress={handleLogout} />
+        <DrawerItem
+          label="Keluar"
+          onPress={handleLogout}
+          labelStyle={labelStyle}
+        />
       </DrawerContentScrollView>
     );
   }
@@ -42,32 +51,64 @@ export default function DrawerNavigator() {
     <Drawer.Navigator
       // initialRouteName={}
       drawerContent={(props) => <CustomDrawerContent {...props} />}
+      screenOptions={{
+        drawerActiveTintColor: "#ffa500",
+        drawerInactiveTintColor: "gray",
+        drawerLabelStyle: {
+          fontSize: 16,
+        },
+      }}
     >
       {/* <Drawer.Screen name="Dashboard" component={}/> */}
       <Drawer.Screen
         name="ProductsScreen"
-        options={{ title: "Products" }}
+        options={{
+          title: "Products",
+          drawerIcon: () => (
+            <Ionicons name="bag-handle-outline" size={24} color="black" />
+          ),
+        }}
         component={ProductsScreen}
       />
       <Drawer.Screen
         name="CreateStore"
         component={CreateStoreScreen}
-        options={{ title: "Daftarkan warung" }}
+        options={{
+          title: "Daftarkan Warung",
+          drawerIcon: () => (
+            <Ionicons name="add-circle-outline" size={24} color="black" />
+          ),
+        }}
       />
       <Drawer.Screen
         name="StoresScreen"
         component={StoresScreen}
-        options={{ title: "WarungKu" }}
+        options={{
+          title: "WarungKu",
+          drawerIcon: () => (
+            <Ionicons name="storefront-outline" size={24} color="black" />
+          ),
+        }}
       />
       <Drawer.Screen
         name="ReportScreen"
         component={ReportScreen}
-        options={{ title: "Laporan" }}
+        options={{
+          title: "Laporan",
+          drawerIcon: () => (
+            <Ionicons name="bar-chart-outline" size={24} color="black" />
+          ),
+        }}
       />
       <Drawer.Screen
         name="TransactionScreen"
         component={TransactionScreen}
-        options={{ title: "Daftar Transaksi" }}
+        options={{
+          title: "Daftar Transaksi",
+          drawerIcon: () => (
+            <Ionicons name="newspaper-outline" size={24} color="black" />
+          ),
+        }}
       />
     </Drawer.Navigator>
   );

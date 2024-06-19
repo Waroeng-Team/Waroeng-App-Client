@@ -32,10 +32,10 @@ export default function LoginScreen({ navigation }) {
 
   async function handleSubmit() {
     try {
-      console.log(email);
-      console.log(password);
+      // console.log(email);
+      // console.log(password);
       const result = await handleLogin({ variables: { email, password } });
-      console.log(result);
+      // console.log(result);
       //save token in SecureStore
       await SecureStore.setItemAsync(
         "access_token",

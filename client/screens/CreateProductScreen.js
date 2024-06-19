@@ -89,7 +89,7 @@ export default function CreateProductScreen({ navigation }) {
           storeId,
         },
       });
-      console.log("Item created:", response.data.createItem);
+      // console.log("Item created:", response.data.createItem);
       alert("Product successfully created!");
       navigation.navigate("ProductsScreen");
     } catch (err) {
@@ -107,7 +107,7 @@ export default function CreateProductScreen({ navigation }) {
       quality: 1,
     });
 
-    console.log(result);
+    // console.log(result);
 
     if (!result.canceled) {
       const data = new FormData();
@@ -116,9 +116,9 @@ export default function CreateProductScreen({ navigation }) {
         type: "image/jpeg", // or your image type
         name: "upload.jpg",
       });
-      console.log(result.assets[0].uri, "<<< uri");
+      // console.log(result.assets[0].uri, "<<< uri");
       data.append("upload_preset", "qzas6lj1");
-      console.log(data, "<<< ini gitu");
+      // console.log(data, "<<< ini gitu");
       try {
         const response = await fetch(
           `https://api.cloudinary.com/v1_1/dwhlzqfjp/image/upload`,
@@ -153,7 +153,7 @@ export default function CreateProductScreen({ navigation }) {
       quality: 1,
     });
 
-    console.log(result);
+    // console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);

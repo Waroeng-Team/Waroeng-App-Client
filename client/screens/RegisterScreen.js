@@ -36,7 +36,7 @@ export default function RegisterScreen({ navigation }) {
       const result = await handleRegister({
         variables: { name, email, password },
       });
-      console.log(result);
+      // console.log(result);
       navigation.navigate("LoginScreen");
     } catch (error) {
       Alert.alert("Error", error.message);

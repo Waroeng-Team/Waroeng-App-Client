@@ -38,27 +38,33 @@ export default function TransactionCard({ transaction }) {
 
   return (
     <View style={styles.card}>
-      <Text style={styles.transactionDateAtt}>Tanggal Transaksi: </Text>
+      <View>
+        <Text style={styles.transactionDateAtt}>Tanggal Transaksi</Text>
+      </View>
       <Text style={styles.transactionDateText}>
         {formatDate(transaction.createdAt)}
       </Text>
-      <Text style={{ flex: 1 }}>
-        <Text style={styles.attributeTitle}>Tipe Transaksi : </Text>
-        <Text style={transactionTypeStyle}>{`  ${transaction.type}  `}</Text>
-      </Text>
-      <Text style={{ flex: 1 }}>
-        <Text style={styles.attributeTitle}>Total Transaksi : </Text>
+      <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+        {/* <View style={{ backgroundColor: "red" }}> */}
+        <Text style={styles.attributeTitle}>Tipe Transaksi</Text>
+        {/* </View> */}
+        <View style={transactionTypeStyle}>
+          <Text style={{ color: "white" }}>{`  ${transaction.type}  `}</Text>
+        </View>
+      </View>
+      <View style={{ flex: 1, flexDirection: "row" }}>
+        <Text style={styles.attributeTitle}>Total Transaksi</Text>
         <Text>{formatTotal(transaction.total)}</Text>
-      </Text>
-      <Text style={{ flex: 1 }}>
-        <Text style={styles.attributeTitle}>Produk : </Text>
+      </View>
+      <View style={{ flex: 1, flexDirection: "row" }}>
+        <Text style={styles.attributeTitle}>Produk</Text>
         <Text>
           {transaction.items.map((item, index) => {
             const isLastItem = index === transaction.items.length - 1;
             return isLastItem ? `${item.name}.` : `${item.name}, `;
           })}
         </Text>
-      </Text>
+      </View>
     </View>
   );
 }
@@ -88,15 +94,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
+    flex: 3,
   },
   incomeTransaction: {
     backgroundColor: "green",
     color: "#fff",
     fontWeight: "bold",
+    borderRadius: 5,
+    paddingVertical: 2,
+    paddingHorizontal: 3,
   },
   outcomeTransaction: {
     backgroundColor: "red",
     color: "#fff",
     fontWeight: "bold",
+    borderRadius: 5,
+    paddingVertical: 2,
+    paddingHorizontal: 3,
   },
 });
