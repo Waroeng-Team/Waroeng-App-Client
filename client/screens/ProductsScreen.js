@@ -122,8 +122,6 @@ const ProductsScreen = ({ navigation }) => {
       const storedId = await SecureStore.getItemAsync("storeId");
       if (storedId) {
         setStoreId(storedId);
-        refetch();
-        refetchStoreDetail();
       } else {
         navigation.navigate("StoresScreen");
       }
@@ -193,7 +191,6 @@ const ProductsScreen = ({ navigation }) => {
     setTotalPrice(total);
   }, [bought]);
 
-  //* Click button Beli
   const handleBuyTransaction = async () => {
     try {
       const items = bought.map((item) => ({
@@ -223,10 +220,9 @@ const ProductsScreen = ({ navigation }) => {
     setScanned(true);
 
     const productId = input.data;
-    // console.log("🚀 ~ handleScanSuccess ~ productId:", productId);
 
     const product = data.getAllItems.find((item) => item._id === productId);
-    // console.log("🚀 ~ handleScanSuccess ~ product:", product);
+
     if (product) {
       handleBuy(product);
     } else {
@@ -271,9 +267,6 @@ const ProductsScreen = ({ navigation }) => {
                   key={index}
                   handleBuy={handleBuy}
                   handleReduceBuy={handleReduceBuy}
-                  setBought={setBought}
-                  isCancel={isCancel}
-                  refetch={refetch}
                   product={product}
                   boughtItem={boughtItem}
                 />
@@ -285,13 +278,15 @@ const ProductsScreen = ({ navigation }) => {
     );
   };
 
-  if (!permission) {
+  if (!permission || permission.granted === false) {
     return (
       <View style={styles.container}>
         <Text style={{ textAlign: "center" }}>
           We need your permission to show the camera
         </Text>
-        <Button onPress={requestPermission} title="grant permission" />
+        <TouchableOpacity style={styles.button} onPress={requestPermission}>
+          <Text style={styles.buttonText}>Grant Permission</Text>
+        </TouchableOpacity>
       </View>
     );
   }
@@ -308,7 +303,7 @@ const ProductsScreen = ({ navigation }) => {
     <>
       {renderContent()}
 
-      {isBuy && bought.length > 0 ? (
+      {isBuy && bought.length > 0 && (
         <View style={styles.bottomBar}>
           <View style={styles.totalContainer}>
             <Text style={styles.totalText}>Total:</Text>
@@ -329,7 +324,9 @@ const ProductsScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-      ) : (
+      )}
+
+      {!isBuy && (
         <TouchableOpacity
           style={styles.addButton}
           onPress={() =>
@@ -374,14 +371,16 @@ const ProductsScreen = ({ navigation }) => {
         </View>
       )}
 
-      <TouchableOpacity
-        style={styles.scanButton}
-        onPress={() => {
-          setScanning(true);
-          setScanned(false); // Reset scanned to false when starting to scan
-        }}>
-        <Text style={styles.scanButtonText}>Scan QR</Text>
-      </TouchableOpacity>
+      {!scanning && (
+        <TouchableOpacity
+          style={styles.scanButton}
+          onPress={() => {
+            setScanning(true);
+            setScanned(false); // Reset scanned to false when starting to scan
+          }}>
+          <Text style={styles.scanButtonText}>Scan QR</Text>
+        </TouchableOpacity>
+      )}
     </>
   );
 };
