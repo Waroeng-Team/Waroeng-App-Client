@@ -13,6 +13,7 @@ import QRCode from "react-native-qrcode-svg";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ProductCard({
   product,
@@ -26,6 +27,7 @@ export default function ProductCard({
   const [amount, setAmount] = useState(boughtItem ? boughtItem.quantity : 0);
   const [isModalVisible, setModalVisible] = useState(false);
   const [qrCodeSvg, setQrCodeSvg] = useState(null);
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (successBuy === true) {
@@ -154,7 +156,11 @@ export default function ProductCard({
         <TouchableOpacity
           style={styles.editButton}
           onPress={() => {
-            /* Handle edit */
+            navigation.navigate("EditProductScreen", {
+              product,
+              productId: product._id,
+              storeId: product.storeId,
+            });
           }}
         >
           <Text style={styles.editButtonText}>Edit</Text>

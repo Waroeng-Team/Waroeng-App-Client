@@ -12,6 +12,7 @@ import { AuthContext } from "./contexts/AuthContext";
 import * as SecureStore from "expo-secure-store";
 import { jwtDecode } from "jwt-decode";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import EditProductScreen from "./screens/EditProductScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -96,6 +97,11 @@ export default function App() {
                     name="CreateProductScreen"
                     component={CreateProductScreen}
                     options={{ title: "Tambah produk baru" }}
+                  />
+                  <Stack.Screen
+                    name="EditProductScreen"
+                    component={EditProductScreen}
+                    options={{ title: "Edit produk" }}
                   />
                 </>
               ) : (
