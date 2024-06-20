@@ -70,7 +70,7 @@ export default function CreateProductScreen({ navigation }) {
 
   const route = useRoute();
   const storeId = route.params.storeId;
-  // console.log(storeId);
+  console.log(storeId);
   const [createItem, { data, loading, error }] = useMutation(CREATE_ITEM);
 
   const handleSubmit = async () => {
